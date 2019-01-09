@@ -1,6 +1,7 @@
 import enum
 from enum import Enum
 import config
+import numpy as np
 
 
 class SearchType(Enum):
@@ -22,19 +23,49 @@ def search(data, start_index, target_value):
 
 def linear_search(data, start_index, target_value):
     index = start_index
-    while data.read(index) < target_value:
+    value = data.read(index)
+    while value < target_value:
         index += 2
-    while data.read(index) > target_value:
+        value = data.read(index)
+    while value > target_value:
         index -= 2
-    if data.read(index) != target_value:
-        raise Exception("key not found!")
+        value = data.read(index)
+    if value != target_value:
+        raise Exception("value not found!")
+    return index
 
 
-def binary_search(data, start_index, target_value):
-    # TODO @@@
-    pass
+def binary_search(data, target_value, left=0, right=None):
+    if right is None:
+        right = data.size - 1
+    while True:
+        if right < left:
+            raise Exception("value not found!")
+        index = np.floor((right - left) / 2)
+        value = data.read(index)
+        if value < target_value:
+            left = index + 2
+        elif value > target_value:
+            right = index - 2
+        else:
+            return index
 
 
 def exponential_search(data, start_index, target_value):
-    # TODO @@@
-    pass
+    index = start_index
+    value = data.read(index)
+    jump = 2
+    if value < target_value:
+        while value < target_value:
+            jump *= 2
+            index += jump
+            value = data.read(index)
+        return binary_search(data, target_value, index-jump, index)
+    elif value > target_value:
+        while value > target_value:
+            jump *= 2
+            index -= jump
+            value = data.read(index)
+        return binary_search(data, target_value, index, index + jump)
+    else:
+        return index
