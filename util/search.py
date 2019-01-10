@@ -10,12 +10,15 @@ class SearchType(Enum):
     EXPONENTIAL = enum.auto
 
 
-def search(data, start_index, target_value):
-    if config.SEARCH == SearchType.LINEAR:
+def search(data, start_index, target_value, search_type=None):
+    if search_type is None:
+        search_type = config.SEARCH
+
+    if search_type == SearchType.LINEAR:
         linear_search(data, start_index, target_value)
-    elif config.SEARCH == SearchType.BINARY:
+    elif search_type == SearchType.BINARY:
         binary_search(data, start_index, target_value)
-    elif config.SEARCH == SearchType.EXPONENTIAL:
+    elif search_type == SearchType.EXPONENTIAL:
         exponential_search(data, start_index, target_value)
     else:
         raise Exception("Unknown search type")
@@ -25,13 +28,13 @@ def linear_search(data, start_index, target_value):
     index = start_index
     value = data.read(index)
     while value < target_value:
-        index += 2
+        index += 1
         value = data.read(index)
     while value > target_value:
-        index -= 2
+        index -= 1
         value = data.read(index)
     if value != target_value:
-        raise Exception("value not found!")
+        raise Exception("value " + str(target_value) + " not found!")
     return index
 
 
