@@ -1,13 +1,13 @@
 import enum
-from enum import Enum
+from enum import Enum, auto
 import config
 import numpy as np
 
 
 class SearchType(Enum):
-    LINEAR = enum.auto
-    BINARY = enum.auto
-    EXPONENTIAL = enum.auto
+    LINEAR = auto()
+    BINARY = auto()
+    EXPONENTIAL = auto()
 
 
 def search(data, start_index, target_value, search_type=None):
@@ -17,7 +17,7 @@ def search(data, start_index, target_value, search_type=None):
     if search_type == SearchType.LINEAR:
         linear_search(data, start_index, target_value)
     elif search_type == SearchType.BINARY:
-        binary_search(data, start_index, target_value)
+        binary_search(data, target_value)
     elif search_type == SearchType.EXPONENTIAL:
         exponential_search(data, start_index, target_value)
     else:
@@ -44,12 +44,12 @@ def binary_search(data, target_value, left=0, right=None):
     while True:
         if right < left:
             raise Exception("value not found!")
-        index = np.floor((right - left) / 2)
+        index = int(np.floor((right + left) / 2))
         value = data.read(index)
         if value < target_value:
-            left = index + 2
+            left = index + 1
         elif value > target_value:
-            right = index - 2
+            right = index - 1
         else:
             return index
 
