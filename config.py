@@ -11,4 +11,4 @@ N_RUNS = 3
 # N_SAMPLES:int - Number of points where access is sampled
 N_SAMPLES = 1000
 # SEARCH:enum - Determine which search to use
-SEARCH = SearchType.BINARY
+SEARCH = SearchType.LINEAR

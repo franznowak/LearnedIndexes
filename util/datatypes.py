@@ -20,6 +20,7 @@ class NumKeyValData:
         # For linear regression:
         self.slope = 0.0
         self.intercept = 0.0
+        self._linear_regression()
 
     def read(self, index):
         self.access_count += 1
@@ -44,7 +45,7 @@ class NumKeyValData:
 
     def _linear_regression(self):
         self.slope, self.intercept, _, _, _ = stats.linregress(
-            range(len(self.data_array)), self.data_array)
+            self.data_array, range(len(self.data_array)))
 
     def print_truncated(self):
         print("{} ... (avg: {})\n".format(self.bucket_array[0:30],

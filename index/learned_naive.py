@@ -16,7 +16,7 @@ def sigmoid(Z):
 
 
 def relu(Z):
-    return np.max(0.0, Z), Z
+    return max(0.0, Z), Z
 
 
 def sigmoid_backward(dA, Z):
@@ -25,7 +25,7 @@ def sigmoid_backward(dA, Z):
 
 
 def relu_backward(dA, Z):
-    return dA * np.max(0.0, np.heaviside(Z, 1.0))
+    return dA * max(0.0, np.heaviside(Z, 1.0))
 
 
 def initialize_parameters(n_x, n_h, n_y):

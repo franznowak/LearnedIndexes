@@ -1,4 +1,5 @@
 import util.search as searcher
+import numpy as np
 
 
 def array_predict(input_data, key):
@@ -9,5 +10,6 @@ def array_predict(input_data, key):
 
 def linear_regression(input_data, key):
     prediction = int(input_data.slope * key + input_data.intercept)
+    prediction = max(0, min(prediction, input_data.size-1))
     searcher.search(input_data, prediction, key)
     return input_data.get_access_count()
