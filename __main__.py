@@ -23,7 +23,7 @@ def main():
             prediction = []
             step = int(config.N_KEYS / config.N_SAMPLES)
             for i in range(0, config.N_KEYS, step):
-                prediction.append(array.array_predict(all_data[run][inter], i))
+                prediction.append(array.linear_regression(all_data[run][inter], i))
                 all_data[run][inter].reset_access_count()
             predictions[run][inter].append(prediction)
             print(prediction)
