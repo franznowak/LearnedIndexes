@@ -1,5 +1,4 @@
 import util.search as searcher
-import numpy as np
 
 
 def array_predict(input_data, key):

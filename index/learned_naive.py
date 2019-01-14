@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 # from testCases_v4 import *
 # from dnn_utils_v2 import sigmoid, sigmoid_backward, relu, relu_backward
 
@@ -11,12 +12,108 @@ plt.rcParams['image.cmap'] = 'gray'
 np.random.seed(1)
 
 
+def main():
+    train_x, train_y, test_x, test_y = load_data()
+    ### CONSTANTS ###
+    layers_dims = [1, 32, 32, 1]  # 3-layer model
+    parameters = L_layer_model(train_x, train_y, layers_dims, num_iterations = 2500, print_cost = True)
+
+    pred_train = predict(train_x, parameters)
+    #TODO: error of prediction, visualise/ plot
+
+
+def load_data():
+    train_x = np.random.randint(100, size=(1, 100))
+    train_x.sort()
+    train_y = np.asarray([i for i in range(1, train_x.size+1)])
+    train_y = train_y.reshape((1, train_x.size))
+    test_x = train_x[:30]
+    test_y = train_y[:30]
+    return train_x, train_y, test_x, test_y
+
+
+def L_layer_model(X, Y, layers_dims, learning_rate=0.0075, num_iterations=3000,
+                  print_cost=False):  # lr was 0.009
+    """
+    Implements a L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->SIGMOID.
+
+    Arguments:
+    X -- data, numpy array of shape (number of examples, num_px * num_px * 3)
+    Y -- true "label" vector (containing 0 if cat, 1 if non-cat), of shape (1, number of examples)
+    layers_dims -- list containing the input size and each layer size, of length (number of layers + 1).
+    learning_rate -- learning rate of the gradient descent update rule
+    num_iterations -- number of iterations of the optimization loop
+    print_cost -- if True, it prints the cost every 100 steps
+
+    Returns:
+    parameters -- parameters learnt by the model. They can then be used to predict.
+    """
+
+    np.random.seed(1)
+    costs = []  # keep track of cost
+
+    parameters = initialize_parameters_deep(layers_dims)
+
+    # Loop (gradient descent)
+    for i in range(0, num_iterations):
+
+        # Forward propagation: [LINEAR -> RELU]*(L-1) -> LINEAR -> LINEAR.
+        AL, caches = L_model_forward(X, parameters)
+
+        cost = compute_cost(AL, Y)
+
+        grads = L_model_backward(AL, Y, caches)
+
+        parameters = update_parameters(parameters, grads, learning_rate)
+
+        # Print the cost every 100 training example
+        if print_cost and i % 100 == 0:
+            print("Cost after iteration %i: %f" % (i, cost))
+        if print_cost and i % 100 == 0:
+            costs.append(cost)
+
+    # plot the cost
+    plt.plot(np.squeeze(costs))
+    plt.ylabel('cost')
+    plt.xlabel('iterations (per tens)')
+    plt.title("Learning rate =" + str(learning_rate))
+    plt.show()
+
+    return parameters
+
+
+def predict(X, parameters):
+    """
+    Using the learned parameters, predicts a class for each example in X
+
+    Arguments:
+    parameters -- python dictionary containing your parameters
+    X -- input data of size (n_x, m)
+
+    Returns
+    predictions -- vector of predictions of our model (red: 0 / blue: 1)
+    """
+
+    A2, cache = L_model_forward(X, parameters)
+    predictions = A2
+
+    return predictions
+
+
+def linear(Z):
+    return 1*Z, Z
+
+
 def sigmoid(Z):
     return 1/(np.exp(-Z)+1.0), Z
 
 
 def relu(Z):
-    return max(0.0, Z), Z
+    return np.vectorize(lambda x: max(0.0, x))(Z), Z
+
+
+def lin_backward(dA, Z):
+    return dA * 1
 
 
 def sigmoid_backward(dA, Z):
@@ -25,7 +122,7 @@ def sigmoid_backward(dA, Z):
 
 
 def relu_backward(dA, Z):
-    return dA * max(0.0, np.heaviside(Z, 1.0))
+    return dA * np.vectorize(lambda x: max(0.0, np.heaviside(x, 1.0)))(Z)
 
 
 def initialize_parameters(n_x, n_h, n_y):
@@ -137,6 +234,11 @@ def linear_activation_forward(A_prev, W, b, activation):
         Z, linear_cache = linear_forward(A_prev, W, b)
         A, activation_cache = relu(Z)
 
+    elif activation == "linear":
+        # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
+        Z, linear_cache = linear_forward(A_prev, W, b)
+        A, activation_cache = linear(Z)
+
     else:
         raise Exception("No activation specified")
 
@@ -172,10 +274,10 @@ def L_model_forward(X, parameters):
                                              activation="relu")
         caches.append(cache)
 
-    # Implement LINEAR -> SIGMOID. Add "cache" to the "caches" list.
+    # Implement LINEAR -> LINEAR. Add "cache" to the "caches" list.
     AL, cache = linear_activation_forward(A, parameters['W' + str(L)],
                                           parameters['b' + str(L)],
-                                          activation="sigmoid")
+                                          activation="linear")
     caches.append(cache)
 
     assert (AL.shape == (1, X.shape[1]))
@@ -197,9 +299,13 @@ def compute_cost(AL, Y):
     """
 
     m = Y.shape[1]
+    prediction = AL * m
 
     # Compute loss from aL and y.
-    cost = -(1 / m) * np.sum(Y * np.log(AL) + (1 - Y) * np.log(1 - AL), axis=1)
+    cost = -(1 / m) * np.sum(Y * np.log(prediction) + (1 - Y) * np.log(1 -
+                                                                       prediction),
+                             axis=1)
+    #cost = -(1 / m) * np.sum(np.square(Y-AL), axis=1)
 
     cost = np.squeeze(cost)  # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
     assert (cost.shape == ())
@@ -258,6 +364,10 @@ def linear_activation_backward(dA, cache, activation):
         dZ = sigmoid_backward(dA, activation_cache)
         dA_prev, dW, db = linear_backward(dZ, linear_cache)
 
+    elif activation == "linear":
+        dZ = lin_backward(dA, activation_cache)
+        dA_prev, dW, db = linear_backward(dZ, linear_cache)
+
     else:
         raise Exception("No activation specified")
 
@@ -285,11 +395,14 @@ def L_model_backward(AL, Y, caches):
     L = len(caches)  # the number of layers
     m = AL.shape[1]
     Y = Y.reshape(AL.shape)  # after this line, Y is the same shape as AL
+    prediction = AL * m
 
     # Initializing the backpropagation
-    dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
+    dAL = - (np.divide(Y, prediction) - np.divide(1 - Y, 1 - prediction))
+    #dAL = -2*(Y-AL)*AL
 
-    # Lth layer (SIGMOID -> LINEAR) gradients. Inputs: "dAL, current_cache". Outputs: "grads["dAL-1"], grads["dWL"], grads["dbL"]
+    # Lth layer (LINEAR -> LINEAR) gradients. Inputs: "dAL, current_cache".
+    # Outputs: "grads["dAL-1"], grads["dWL"], grads["dbL"]
     current_cache = caches[L - 1]
     grads["dA" + str(L - 1)], grads["dW" + str(L)], grads[
         "db" + str(L)] = linear_activation_backward(dAL, current_cache,
@@ -334,3 +447,7 @@ def update_parameters(parameters, grads, learning_rate):
                                            "b" + str(l + 1)] - learning_rate * \
                                        grads["db" + str(l + 1)]
     return parameters
+
+
+if __name__=="__main__":
+    main()
