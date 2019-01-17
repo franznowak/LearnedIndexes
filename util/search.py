@@ -1,4 +1,3 @@
-import enum
 from enum import Enum, auto
 import config
 import numpy as np

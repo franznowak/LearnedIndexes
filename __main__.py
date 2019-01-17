@@ -1,6 +1,6 @@
 import config
 from util.datatypes import NumKeyValData
-import index.array as array
+import index.array_predictor as array
 
 all_data = []
 
