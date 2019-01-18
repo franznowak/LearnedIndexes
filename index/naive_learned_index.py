@@ -13,12 +13,12 @@ from tensorflow.keras import layers
 
 
 def main():
-    dataset_path = '/Users/franz/.keras/datasets/random.data'
+    dataset_path = '../data/run2inter3'
 
     column_names = ['key', 'index']
     raw_dataset = pd.read_csv(dataset_path, names=column_names,
                               na_values="?", comment='\t',
-                              sep=" ", skipinitialspace=True)
+                              sep=",", skipinitialspace=True)
 
     dataset = raw_dataset.copy()
 
@@ -41,7 +41,7 @@ def main():
     print(model.summary())
     pass
 
-    EPOCHS = 1000
+    EPOCHS = 100  # 1000
 
     history = model.fit(
         normed_train_data, train_labels,
@@ -70,9 +70,9 @@ def build_model(train_dataset):
 
 # Display training progress by printing a single dot for each completed epoch
 class PrintDot(keras.callbacks.Callback):
-  def on_epoch_end(self, epoch, logs):
-    if epoch % 100 == 0: print('')
-    print('.', end='')
+   def on_epoch_end(self, epoch, logs):
+     if epoch % 100 == 0: print('')
+     print('.', end='')
 
 
 if __name__ == "__main__":
