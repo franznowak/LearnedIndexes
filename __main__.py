@@ -1,13 +1,11 @@
 import config
-from util.datatypes import NumKeyValData
+import util.data_generator as datagen
 import index.array_predictor as array
-
-all_data = []
 
 
 def main():
     print("start creating data...")
-    generate_data()
+    all_data = datagen.generate_data()
     print("Done.")
     for b in all_data[0]:
         b.print_truncated()
@@ -30,19 +28,6 @@ def main():
 
     print("Done.")
     print(predictions)
-
-
-def generate_data():
-    for run in range(config.N_RUNS):
-        print("run # " + str(run+1) + "/" + str(config.N_RUNS))
-        run_data = []
-        seed = run
-        for interpolation in range(config.N_INTERPOLATIONS):
-            n_keys = config.N_KEYS
-            ratio = 1/config.N_INTERPOLATIONS * interpolation
-            interpolation_data = NumKeyValData(seed, n_keys, ratio)
-            run_data.append(interpolation_data)
-        all_data.append(run_data)
 
 
 if __name__ == "__main__":
