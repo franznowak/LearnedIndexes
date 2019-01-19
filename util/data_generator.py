@@ -21,7 +21,8 @@ def generate_data():
             run_data.append(interpolation_data)
 
             file_name = "run" + str(run) + "inter" + str(interpolation)
-            with open("../data/" + file_name, 'w', newline='') as data_file:
+            with open("../training_data/" + file_name, 'w', newline='') as \
+                    data_file:
                 wr = csv.writer(data_file, quoting=csv.QUOTE_NONE)
                 for i in range(interpolation_data.size):
                     wr.writerow([interpolation_data.read(i), i])
