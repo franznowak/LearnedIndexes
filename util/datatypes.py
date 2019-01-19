@@ -53,6 +53,8 @@ class NumKeyValData:
         self.access_count += 1
         if len(self.data_array) < index + 1:
             raise IndexError("Not enough data present")
+        elif index < 0:
+            raise IndexError("negative index detected")
         return self.data_array[index]
 
     def _create_bucket_array(self):

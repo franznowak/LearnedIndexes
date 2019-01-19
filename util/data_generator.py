@@ -5,7 +5,6 @@ from util.datatypes import NumKeyValData
 
 def main():
     config.FILE_PATH = "../" + config.FILE_PATH
-    #generate_all_data()
     data = load_all_data()
 
 
