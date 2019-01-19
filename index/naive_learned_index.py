@@ -1,7 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
 import pathlib
-
 import numpy as np
 
 import pandas as pd
@@ -9,11 +8,11 @@ import seaborn as sns
 
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras import layers
+from keras import layers
 
 
 def main():
-    dataset_path = '../data/run2inter3'
+    dataset_path = '../training_data/run0inter3'
 
     column_names = ['key', 'index']
     raw_dataset = pd.read_csv(dataset_path, names=column_names,
@@ -41,7 +40,7 @@ def main():
     print(model.summary())
     pass
 
-    EPOCHS = 100  # 1000
+    EPOCHS = 1000  # 1000
 
     history = model.fit(
         normed_train_data, train_labels,
@@ -50,22 +49,23 @@ def main():
 
 
 def norm(x, stats):
-  return (x - stats['mean']) / stats['std']
+    return (x - stats['mean']) / stats['std']
 
 
 def build_model(train_dataset):
-  model = keras.Sequential([
-    layers.Dense(32, activation=tf.nn.relu, input_shape=[len(train_dataset.keys())]),
-    layers.Dense(32, activation=tf.nn.relu),
-    layers.Dense(1)
-  ])
+    model = keras.Sequential([
+      layers.Dense(32, activation=tf.nn.relu, input_shape=[len(
+         train_dataset.keys())]),
+      layers.Dense(32, activation=tf.nn.relu),
+      layers.Dense(1)
+    ])
 
-  optimizer = tf.train.RMSPropOptimizer(0.001)
+    optimizer = tf.train.RMSPropOptimizer(0.001)
 
-  model.compile(loss='mse',
-                optimizer=optimizer,
-                metrics=['mae', 'mse'])
-  return model
+    model.compile(loss='mse',
+                  optimizer=optimizer,
+                  metrics=['mae', 'mse'])
+    return model
 
 
 # Display training progress by printing a single dot for each completed epoch

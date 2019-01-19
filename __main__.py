@@ -4,8 +4,8 @@ import index.array_predictor as array
 
 
 def main():
-    print("start creating data...")
-    all_data = datagen.generate_data()
+    print("loading data...")
+    all_data = datagen.load_all_data()
     print("Done.")
     for b in all_data[0]:
         b.print_truncated()
