@@ -4,14 +4,9 @@ from util.datatypes import NumKeyValData
 
 
 def main():
+    config.FILE_PATH = "../" + config.FILE_PATH
     #generate_all_data()
     data = load_all_data()
-    for a in data:
-        for b in a:
-            print(b.data_array)
-
-
-FILE_PATH = "training_data/"
 
 
 def generate_all_data():
@@ -29,7 +24,7 @@ def generate_all_data():
             run_data.append(interpolation_data)
 
             file_name = "run" + str(run) + "inter" + str(interpolation)
-            interpolation_data.save(FILE_PATH + file_name)
+            interpolation_data.save(config.FILE_PATH + file_name)
 
         all_data.append(run_data)
     return all_data
@@ -44,7 +39,7 @@ def load_all_data():
         for interpolation in range(config.N_INTERPOLATIONS):
             interpolation_data = NumKeyValData()
             file_name = "run" + str(run) + "inter" + str(interpolation)
-            interpolation_data.load(FILE_PATH + file_name)
+            interpolation_data.load(config.FILE_PATH + file_name)
             run_data.append(interpolation_data)
 
         all_data.append(run_data)

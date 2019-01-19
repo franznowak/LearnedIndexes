@@ -12,3 +12,5 @@ N_RUNS = 1
 N_SAMPLES = 1000
 # SEARCH:enum - Determine which search to use
 SEARCH = SearchType.LINEAR
+# FILE_PATH:str - Path where datasets are stored
+FILE_PATH = "training_data/"

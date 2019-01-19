@@ -35,9 +35,13 @@ class NumKeyValData:
     def load(self, filename):
         with open(filename, 'r', newline='') as data_file:
             csv_reader = csv.reader(data_file, quoting=csv.QUOTE_NONE)
+            values = set()
             for row in csv_reader:
-                self.data_array.append(int(row[0]))
+                value = int(row[0])
+                values.add(value)
+                self.data_array.append(value)
             self.size = len(self.data_array)
+            self.n_keys = len(values)
 
     def save(self, filename):
         with open(filename, 'w', newline='') as data_file:

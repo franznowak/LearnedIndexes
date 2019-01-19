@@ -1,14 +1,16 @@
 import config
 import util.data_generator as datagen
 import index.array_predictor as array
+import numpy as np
 
 
 def main():
     print("loading data...")
     all_data = datagen.load_all_data()
     print("Done.")
-    for b in all_data[0]:
-        b.print_truncated()
+
+    # for b in all_data[0]:
+    #     b.print_truncated()
 
     print("Start predictions...")
     predictions = []
@@ -21,13 +23,12 @@ def main():
             prediction = []
             step = int(config.N_KEYS / config.N_SAMPLES)
             for i in range(0, config.N_KEYS, step):
-                prediction.append(array.linear_regression(all_data[run][inter], i))
+                prediction.append(array.array_predict(all_data[run][inter], i))
                 all_data[run][inter].reset_access_count()
             predictions[run][inter].append(prediction)
-            print(prediction)
+            print(np.mean(prediction))
 
     print("Done.")
-    print(predictions)
 
 
 if __name__ == "__main__":
