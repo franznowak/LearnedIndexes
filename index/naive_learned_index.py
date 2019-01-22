@@ -38,14 +38,13 @@ def main():
     model = build_model(train_dataset)
 
     print(model.summary())
-    pass
 
-    EPOCHS = 1000  # 1000
+    EPOCHS = 1000  # Change depending on convergence, and max
 
     history = model.fit(
         normed_train_data, train_labels,
         epochs=EPOCHS, validation_split=0.2, verbose=0,
-        callbacks=[PrintDot()])
+        callbacks=[PrintDot()]) # Different callback
 
 
 def norm(x, stats):
