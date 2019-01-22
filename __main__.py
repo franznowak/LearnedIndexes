@@ -1,6 +1,6 @@
 import config
 import util.data_generator as datagen
-import index.array_predictor as array
+import index.array_index as array
 import numpy as np
 
 
