@@ -8,7 +8,7 @@ import seaborn as sns
 
 import tensorflow as tf
 from tensorflow import keras
-from keras import layers
+from tensorflow.keras import layers
 
 
 def main():
@@ -24,7 +24,7 @@ def main():
     train_dataset = dataset.sample(frac=0.8, random_state=0)
     test_dataset = dataset.drop(train_dataset.index)
 
-    sns.pairplot(train_dataset[["index", "key"]], diag_kind="kde")
+    # sns.pairplot(train_dataset[["index", "key"]], diag_kind="kde")
 
     train_labels = train_dataset.pop('index')
     test_labels = test_dataset.pop('index')
