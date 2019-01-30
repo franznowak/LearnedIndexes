@@ -20,11 +20,13 @@ def main():
     train_dataset = raw_dataset.copy()
 
     train_labels = train_dataset.pop('index')
+    test_labels = train_labels
 
     # Normalise data
     train_stats = train_dataset.describe()
     train_stats = train_stats.transpose()
     normed_train_data = norm(train_dataset, train_stats)
+    normed_test_data = normed_train_data
 
     model = build_model(train_dataset)
 
@@ -40,6 +42,18 @@ def main():
         callbacks=callbacks)
 
     plot_history(history)
+
+    test_predictions = model.predict(normed_test_data).flatten()
+
+    plt.scatter(test_labels, test_predictions)
+    plt.xlabel('True Values [MPG]')
+    plt.ylabel('Predictions [MPG]')
+    plt.axis('equal')
+    plt.axis('square')
+    plt.xlim([0, plt.xlim()[1]])
+    plt.ylim([0, plt.ylim()[1]])
+    _ = plt.plot([-100, 100], [-100, 100])
+    plt.show()
 
 
 def norm(x, stats):
@@ -91,3 +105,4 @@ class PrintDot(keras.callbacks.Callback):
 
 if __name__ == "__main__":
     main()
+
