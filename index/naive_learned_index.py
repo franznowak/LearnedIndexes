@@ -10,60 +10,70 @@ import matplotlib.pyplot as plt
 
 
 def main():
-    dataset_path = '../training_data/run0inter3'
+    dataset_path = '../data/run0inter3'
 
-    column_names = ['key', 'index']
-    raw_dataset = pd.read_csv(dataset_path, names=column_names,
-                              na_values="?", comment='\t',
-                              sep=",", skipinitialspace=True)
+    training_data, training_labels = prepare_data(dataset_path)
+    size = len(training_data.keys())
 
-    train_dataset = raw_dataset.copy()
+    model = build_model(size)
 
-    train_labels = train_dataset.pop('index')
-    test_labels = train_labels
+    # model.load_weights('weights.h5')
+    train_upto(model, training_data, training_labels)
 
-    # Normalise data
-    train_stats = train_dataset.describe()
-    train_stats = train_stats.transpose()
-    normed_train_data = norm(train_dataset, train_stats)
-    normed_test_data = normed_train_data
+    # We are overfitting, so test using training data
+    test_data = training_data
+    test_labels = training_labels
 
-    model = build_model(train_dataset)
+    test_predictions = model.predict(test_data).flatten()
+    plot_prediction(test_labels, test_predictions)
 
-    max_epochs = 1000 # Change depending on convergence, and max
+
+def train_upto(model, data, labels, epochs = 100):
+    max_epochs = epochs
     callbacks = [keras.callbacks.EarlyStopping(monitor='mean_absolute_error',
-                                               min_delta=0, patience=2,
+                                               min_delta=0, patience=10,
                                                verbose=0, mode='auto',
-                                               baseline=None), PrintDot()]
+                                               baseline=None),
+                 keras.callbacks.ModelCheckpoint('weights.h5',
+                                                 monitor='mean_absolute_error',
+                                                 verbose=0, save_best_only=True,
+                                                 save_weights_only=True,
+                                                 mode='auto',
+                                                 period=1), PrintDot()]
 
     history = model.fit(
-        normed_train_data, train_labels,
-        epochs=max_epochs, validation_split=0.2, verbose=0,
+        data, labels,
+        epochs=max_epochs, validation_split=1, verbose=0,
         callbacks=callbacks)
 
     plot_history(history)
-
-    test_predictions = model.predict(normed_test_data).flatten()
-
-    plt.scatter(test_labels, test_predictions)
-    plt.xlabel('True Values [MPG]')
-    plt.ylabel('Predictions [MPG]')
-    plt.axis('equal')
-    plt.axis('square')
-    plt.xlim([0, plt.xlim()[1]])
-    plt.ylim([0, plt.ylim()[1]])
-    _ = plt.plot([-100, 100], [-100, 100])
-    plt.show()
 
 
 def norm(x, stats):
     return (x - stats['mean']) / stats['std']
 
 
-def build_model(train_dataset):
+def prepare_data(path):
+    column_names = ['key', 'index']
+    raw_dataset = pd.read_csv(path, names=column_names,
+                              na_values="?", comment='\t',
+                              sep=",", skipinitialspace=True)
+
+    train_dataset = raw_dataset.copy()
+
+    train_labels = train_dataset.pop('index')
+
+    # Normalise data
+    train_stats = train_dataset.describe()
+    train_stats = train_stats.transpose()
+
+    normed_train_data = norm(train_dataset, train_stats)
+
+    return train_dataset, train_labels
+
+def build_model(input_size):
     model = keras.Sequential([
-      layers.Dense(32, activation=tf.nn.relu, input_shape=[len(
-         train_dataset.keys())]),
+      layers.Dense(32, activation=tf.nn.relu, input_shape=[input_size]),
       layers.Dense(32, activation=tf.nn.relu),
       layers.Dense(1)
     ])
@@ -76,23 +86,41 @@ def build_model(train_dataset):
     return model
 
 
-def plot_history(history):
+def plot_history(history, metric='mae'):
     hist = pd.DataFrame(history.history)
     hist['epoch'] = history.epoch
-    plt.figure()
-    plt.xlabel('Epoch')
-    plt.ylabel('Mean Abs Error')
-    plt.plot(hist['epoch'], hist['mean_absolute_error'],
-             label='Train Error')
-    plt.legend()
-    plt.ylim([0, 50])
-    # plt.figure()
-    # plt.xlabel('Epoch')
-    # plt.ylabel('Mean Square Error')
-    # plt.plot(hist['epoch'], hist['mean_squared_error'],
-    #          label='Train Error')
-    # plt.legend()
-    # plt.ylim([0, 800])
+
+    if metric == 'mae':
+        plt.figure()
+        plt.xlabel('Epoch')
+        plt.ylabel('Mean Abs Error')
+        plt.plot(hist['epoch'], hist['mean_absolute_error'],
+                 label='Train Error')
+        plt.legend()
+        plt.ylim([0, 1000])
+    elif metric == 'mse':
+        plt.figure()
+        plt.xlabel('Epoch')
+        plt.ylabel('Mean Square Error')
+        plt.plot(hist['epoch'], hist['mean_squared_error'],
+                 label='Train Error')
+        plt.legend()
+        plt.ylim([0, 800])
+    else:
+        raise NameError("metric \"{}\" not recognised".format(metric))
+
+    plt.show()
+
+
+def plot_prediction(labels, prediction):
+    plt.scatter(labels, prediction)
+    plt.xlabel('True Values')
+    plt.ylabel('Predictions')
+    plt.axis('equal')
+    plt.axis('square')
+    plt.xlim([0, plt.xlim()[1]])
+    plt.ylim([0, plt.ylim()[1]])
+    _ = plt.plot([0, len(labels)], [0, len(labels)])
     plt.show()
 
 
