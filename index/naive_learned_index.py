@@ -10,17 +10,39 @@ import matplotlib.pyplot as plt
 
 
 def main():
-    dataset_path = '../data/run0inter3'
+    histories = train_model(1, 2, 10)
+    for history in histories:
+        plot_history(history)
+
+
+def train_model(runs, interpolations, epochs):
+    histories = []
+    for i in range(runs):
+        for j in range(interpolations):
+            dataset_path = '../data/run{}inter{}'.format(i,j)
+
+            training_data, training_labels = prepare_data(dataset_path)
+            size = len(training_data.keys())
+
+            model = build_model(size)
+
+            h = train_upto(model, training_data, training_labels,
+                           'models/NN_run{}inter{}.h5'.format(i,j), epochs)
+            histories.append(h)
+    return histories
+
+
+def predict(run, interpolation):
+    dataset_path = '../data/run{}inter{}'.format(run, interpolation)
 
     training_data, training_labels = prepare_data(dataset_path)
     size = len(training_data.keys())
 
     model = build_model(size)
 
-    # model.load_weights('weights.h5')
-    train_upto(model, training_data, training_labels)
+    model.load_weights('models/NN_run{}inter{}.h5'.format(run, interpolation))
 
-    # We are overfitting, so test using training data
+    # We are over-fitting, so test using training data
     test_data = training_data
     test_labels = training_labels
 
@@ -28,13 +50,13 @@ def main():
     plot_prediction(test_labels, test_predictions)
 
 
-def train_upto(model, data, labels, epochs = 100):
+def train_upto(model, data, labels, checkpoint_name, epochs = 100):
     max_epochs = epochs
     callbacks = [keras.callbacks.EarlyStopping(monitor='mean_absolute_error',
                                                min_delta=0, patience=10,
                                                verbose=0, mode='auto',
                                                baseline=None),
-                 keras.callbacks.ModelCheckpoint('weights.h5',
+                 keras.callbacks.ModelCheckpoint(checkpoint_name,
                                                  monitor='mean_absolute_error',
                                                  verbose=0, save_best_only=True,
                                                  save_weights_only=True,
@@ -46,7 +68,7 @@ def train_upto(model, data, labels, epochs = 100):
         epochs=max_epochs, validation_split=1, verbose=0,
         callbacks=callbacks)
 
-    plot_history(history)
+    return history
 
 
 def norm(x, stats):
@@ -67,9 +89,10 @@ def prepare_data(path):
     train_stats = train_dataset.describe()
     train_stats = train_stats.transpose()
 
-    normed_train_data = norm(train_dataset, train_stats)
+    train_dataset = norm(train_dataset, train_stats)
 
     return train_dataset, train_labels
+
 
 def build_model(input_size):
     model = keras.Sequential([
