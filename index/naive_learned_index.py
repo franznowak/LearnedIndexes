@@ -8,18 +8,23 @@ from tensorflow.keras import layers
 
 import matplotlib.pyplot as plt
 
+import config
+
 
 def main():
-    histories = train_model(1, 2, 10)
-    for history in histories:
-        plot_history(history)
+    config.FILE_PATH = "../" + config.FILE_PATH
+    config.MODEL_PATH = "../" + config.MODEL_PATH
+    #histories = train_model(1, 10, 100)
+    #for history in histories:
+    #    plot_history(history)
+    predict(0,1)
 
 
 def train_model(runs, interpolations, epochs):
     histories = []
     for i in range(runs):
         for j in range(interpolations):
-            dataset_path = '../data/run{}inter{}'.format(i,j)
+            dataset_path = config.FILE_PATH+'run{}inter{}'.format(i,j)
 
             training_data, training_labels = prepare_data(dataset_path)
             size = len(training_data.keys())
@@ -27,27 +32,32 @@ def train_model(runs, interpolations, epochs):
             model = build_model(size)
 
             h = train_upto(model, training_data, training_labels,
-                           'models/NN_run{}inter{}.h5'.format(i,j), epochs)
+                           config.MODEL_PATH + 'NN_run{}inter{}.h5'.format(i,j),
+                           epochs)
             histories.append(h)
     return histories
 
 
 def predict(run, interpolation):
-    dataset_path = '../data/run{}inter{}'.format(run, interpolation)
+    dataset_path = config.FILE_PATH+'run{}inter{}'.format(run, interpolation)
 
     training_data, training_labels = prepare_data(dataset_path)
     size = len(training_data.keys())
 
     model = build_model(size)
-
-    model.load_weights('models/NN_run{}inter{}.h5'.format(run, interpolation))
-
+    try:
+        model.load_weights(config.MODEL_PATH + 'NN_run{}inter{}.h5'.format(run,
+                                                               interpolation))
+    except FileNotFoundError:
+        raise Exception("No model trained for run{}inter{}".format(run,interpolation))
     # We are over-fitting, so test using training data
     test_data = training_data
     test_labels = training_labels
 
     test_predictions = model.predict(test_data).flatten()
-    plot_prediction(test_labels, test_predictions)
+
+    plot_prediction(test_data, test_predictions)
+    return test_labels, test_predictions
 
 
 def train_upto(model, data, labels, checkpoint_name, epochs = 100):

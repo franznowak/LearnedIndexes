@@ -24,7 +24,7 @@ def search(data, start_index, target_value, search_type=None):
 
 
 def linear_search(data, start_index, target_value):
-    index = start_index
+    index = max(0, min(data.size-1, start_index))
     value = data.read(index)
     while value < target_value:
         index += 1
