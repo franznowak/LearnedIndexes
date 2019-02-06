@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 
 import config
 
+import numpy as np
 
 def main():
     config.FILE_PATH = "../" + config.FILE_PATH
@@ -17,7 +18,7 @@ def main():
     #histories = train_model(1, 10, 100)
     #for history in histories:
     #    plot_history(history)
-    predict(0,1)
+    predict(0, 1)
 
 
 def train_model(runs, interpolations, epochs):
@@ -38,13 +39,12 @@ def train_model(runs, interpolations, epochs):
     return histories
 
 
-def predict(run, interpolation):
+def validate(run, interpolation):
     dataset_path = config.FILE_PATH+'run{}inter{}'.format(run, interpolation)
 
     training_data, training_labels = prepare_data(dataset_path)
-    size = len(training_data.keys())
 
-    model = build_model(size)
+    model = build_model()
     try:
         model.load_weights(config.MODEL_PATH + 'NN_run{}inter{}.h5'.format(run,
                                                                interpolation))
@@ -58,6 +58,26 @@ def predict(run, interpolation):
 
     plot_prediction(test_data, test_predictions)
     return test_labels, test_predictions
+
+
+def predict(run, interpolation):
+    dataset_path = config.FILE_PATH + 'run{}inter{}'.format(run, interpolation)
+
+    data, labels = get_testing_data(dataset_path)
+
+    model = build_model()
+    try:
+        model.load_weights(config.MODEL_PATH + 'NN_run{}inter{}.h5'.format(run,
+                                                                           interpolation))
+    except FileNotFoundError:
+        raise Exception(
+            "No model trained for run{}inter{}".format(run, interpolation))
+    # We are over-fitting, so test using training data
+
+    prediction = model.predict(data).flatten()
+
+    #plot_prediction(labels, prediction)
+    return labels, prediction
 
 
 def train_upto(model, data, labels, checkpoint_name, epochs = 100):
@@ -104,9 +124,29 @@ def prepare_data(path):
     return train_dataset, train_labels
 
 
-def build_model(input_size):
+def get_testing_data(path):
+    column_names = ['key', 'index']
+    dataset = pd.read_csv(path, names=column_names,
+                              na_values="?", comment='\t',
+                              sep=",", skipinitialspace=True)
+
+    dataset.drop_duplicates(subset="key", keep='first', inplace=True)
+    true_labels = dataset.pop('index')
+
+    keys = pd.DataFrame(np.array([i for i in range(len(true_labels.keys()))]))
+
+    # Normalise data
+    train_stats = keys.describe()
+    train_stats = train_stats.transpose()
+
+    normed_keys = norm(keys, train_stats)
+
+    return normed_keys, true_labels
+
+
+def build_model():
     model = keras.Sequential([
-      layers.Dense(32, activation=tf.nn.relu, input_shape=[input_size]),
+      layers.Dense(32, activation=tf.nn.relu, input_shape=[1]),
       layers.Dense(32, activation=tf.nn.relu),
       layers.Dense(1)
     ])

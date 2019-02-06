@@ -46,7 +46,7 @@ def main():
     for run in range(config.N_RUNS):
         print("run # " + str(run + 1) + "/" + str(config.N_RUNS))
         li_predictions.append([])
-        for inter in range(1,config.N_INTERPOLATIONS):
+        for inter in range(0,config.N_INTERPOLATIONS):
             print("inter # " + str(inter + 1) + "/" + str(config.N_INTERPOLATIONS))
             inter_prediction = []
             keys, index_predictions = li.predict(run, inter)
