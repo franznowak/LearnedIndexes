@@ -3,8 +3,8 @@ from __future__ import absolute_import, division, print_function
 import pandas as pd
 
 import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
+import keras
+from keras import layers
 
 import matplotlib.pyplot as plt
 
@@ -12,12 +12,13 @@ import config
 
 import numpy as np
 
+
 def main():
     config.FILE_PATH = "../" + config.FILE_PATH
     config.MODEL_PATH = "../" + config.MODEL_PATH
-    #histories = train_model(1, 10, 100)
-    #for history in histories:
-    #    plot_history(history)
+    # histories = train_model(1, 10, 100)
+    # for history in histories:
+    #     plot_history(history)
     predict(0, 1)
 
 
@@ -25,15 +26,14 @@ def train_model(runs, interpolations, epochs):
     histories = []
     for i in range(runs):
         for j in range(interpolations):
-            dataset_path = config.FILE_PATH+'run{}inter{}'.format(i,j)
+            dataset_path = config.FILE_PATH+'run{}inter{}'.format(i, j)
 
             training_data, training_labels = prepare_data(dataset_path)
-            size = len(training_data.keys())
 
-            model = build_model(size)
+            model = build_model()
 
             h = train_upto(model, training_data, training_labels,
-                           config.MODEL_PATH + 'NN_run{}inter{}.h5'.format(i,j),
+                           config.MODEL_PATH+'NN_run{}inter{}.h5'.format(i, j),
                            epochs)
             histories.append(h)
     return histories
@@ -47,9 +47,10 @@ def validate(run, interpolation):
     model = build_model()
     try:
         model.load_weights(config.MODEL_PATH + 'NN_run{}inter{}.h5'.format(run,
-                                                               interpolation))
+                           interpolation))
     except FileNotFoundError:
-        raise Exception("No model trained for run{}inter{}".format(run,interpolation))
+        raise Exception("No model trained for run{}inter{}".format(run,
+                        interpolation))
     # We are over-fitting, so test using training data
     test_data = training_data
     test_labels = training_labels
@@ -68,7 +69,7 @@ def predict(run, interpolation):
     model = build_model()
     try:
         model.load_weights(config.MODEL_PATH + 'NN_run{}inter{}.h5'.format(run,
-                                                                           interpolation))
+                           interpolation))
     except FileNotFoundError:
         raise Exception(
             "No model trained for run{}inter{}".format(run, interpolation))
@@ -76,11 +77,11 @@ def predict(run, interpolation):
 
     prediction = model.predict(data).flatten()
 
-    #plot_prediction(labels, prediction)
+    # plot_prediction(labels, prediction)
     return labels, prediction
 
 
-def train_upto(model, data, labels, checkpoint_name, epochs = 100):
+def train_upto(model, data, labels, checkpoint_name, epochs=100):
     max_epochs = epochs
     callbacks = [keras.callbacks.EarlyStopping(monitor='mean_absolute_error',
                                                min_delta=0, patience=10,
@@ -127,8 +128,8 @@ def prepare_data(path):
 def get_testing_data(path):
     column_names = ['key', 'index']
     dataset = pd.read_csv(path, names=column_names,
-                              na_values="?", comment='\t',
-                              sep=",", skipinitialspace=True)
+                          na_values="?", comment='\t',
+                          sep=",", skipinitialspace=True)
 
     dataset.drop_duplicates(subset="key", keep='first', inplace=True)
     true_labels = dataset.pop('index')
@@ -200,10 +201,10 @@ def plot_prediction(labels, prediction):
 # Display training progress by printing a single dot for each completed epoch
 class PrintDot(keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs):
-        if epoch % 100 == 0: print('')
+        if epoch % 100 == 0:
+            print('')
         print('.', end='')
 
 
 if __name__ == "__main__":
     main()
-

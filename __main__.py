@@ -61,13 +61,26 @@ def main():
             li_predictions[run].append(inter_prediction)
     print("Done.")
 
-    x = np.arange(0, config.N_KEYS, int(config.N_KEYS / config.N_SAMPLES))
-    y = np.average(li_predictions, axis=0)[1]
+    x = np.arange(0, config.N_INTERPOLATIONS)
+    y = np.average(li_predictions[0], axis=1)
     fig, ax = plt.subplots()
     ax.plot(x, y)
     ax.set(xlabel='key', ylabel='number of reads',
-           title='Access time Learned Index predict data 1')
+           title='Access times')
     ax.grid()
+    #plt.show()
+
+
+    array_efficiency = [0,145,200,230,250,260,280,265,270,280]
+    btree_efficiency = [70 for _ in range(10)]
+
+    A = array_efficiency
+    B = btree_efficiency
+
+    # Plotting functionality starts here
+    plt.plot(A, 'b')
+    plt.plot(B, 'C1')
+    plt.plot(y, 'g')
     plt.show()
 
 
