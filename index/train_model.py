@@ -48,7 +48,7 @@ callbacks = [keras.callbacks.EarlyStopping(monitor='mean_absolute_error',
                                            min_delta=0, patience=10,
                                            verbose=0, mode='auto',
                                            baseline=None),
-             keras.callbacks.ModelCheckpoint('models/weights{}_{}.h5'.format(
+             keras.callbacks.ModelCheckpoint('naive_models_0/weights{}_{}.h5'.format(
                                                                 run, inter),
                                              monitor='mean_absolute_error',
                                              verbose=0, save_best_only=True,

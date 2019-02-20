@@ -49,7 +49,12 @@ def main():
         for inter in range(0,config.N_INTERPOLATIONS):
             print("inter # " + str(inter + 1) + "/" + str(config.N_INTERPOLATIONS))
             inter_prediction = []
-            keys, index_predictions = li.predict(run, inter)
+            try:
+                keys, index_predictions = li.predict(run, inter)
+            except FileNotFoundError as e:
+                print("Skipped model {}_{}".format(run, inter))
+                li_predictions[run].append(inter_prediction)
+                continue
             print(index_predictions[99999])
             step = int(config.N_KEYS / config.N_SAMPLES)
             for key in range(0, config.N_KEYS, step):
@@ -62,7 +67,9 @@ def main():
     print("Done.")
 
     x = np.arange(0, config.N_INTERPOLATIONS)
-    y = np.average(li_predictions[0], axis=1)
+
+
+    y = np.average(np.average(li_predictions,axis=0), axis=1)
     fig, ax = plt.subplots()
     ax.plot(x, y)
     ax.set(xlabel='key', ylabel='number of reads',
@@ -78,8 +85,8 @@ def main():
     B = btree_efficiency
 
     # Plotting functionality starts here
-    plt.plot(A, 'b')
-    plt.plot(B, 'C1')
+    #plt.plot(A, 'b')
+    #plt.plot(B, 'C1')
     plt.plot(y, 'g')
     plt.show()
 

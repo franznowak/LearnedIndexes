@@ -33,7 +33,7 @@ def train_model(runs, interpolations, epochs):
             model = build_model()
 
             h = train_upto(model, training_data, training_labels,
-                           config.MODEL_PATH+'NN_run{}inter{}.h5'.format(i, j),
+                           config.MODEL_PATH+'weights{}_{}.h5'.format(i, j),
                            epochs)
             histories.append(h)
     return histories
@@ -46,10 +46,11 @@ def validate(run, interpolation):
 
     model = build_model()
     try:
-        model.load_weights(config.MODEL_PATH + 'NN_run{}inter{}.h5'.format(run,
+        model.load_weights(config.MODEL_PATH + 'weights{}_{}.h5'.format(run,
                            interpolation))
     except FileNotFoundError:
-        raise Exception("No model trained for run{}inter{}".format(run,
+        raise FileNotFoundError("No model trained for run{}inter{}".format(
+            run,
                         interpolation))
     # We are over-fitting, so test using training data
     test_data = training_data
@@ -62,17 +63,20 @@ def validate(run, interpolation):
 
 
 def predict(run, interpolation):
+    import os.path
+    if not os.path.isfile(config.MODEL_PATH + "weights{}_{}.h5".format(run, \
+            interpolation)):
+        raise FileNotFoundError(
+            "No model trained for run{}inter{}".format(run, interpolation));
+
     dataset_path = config.FILE_PATH + 'run{}inter{}'.format(run, interpolation)
 
     data, labels = get_testing_data(dataset_path)
 
     model = build_model()
-    try:
-        model.load_weights(config.MODEL_PATH + 'NN_run{}inter{}.h5'.format(run,
+
+    model.load_weights(config.MODEL_PATH + 'weights{}_{}.h5'.format(run,
                            interpolation))
-    except FileNotFoundError:
-        raise Exception(
-            "No model trained for run{}inter{}".format(run, interpolation))
     # We are over-fitting, so test using training data
 
     prediction = model.predict(data).flatten()
