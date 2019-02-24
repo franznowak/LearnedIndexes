@@ -1,3 +1,5 @@
+import time
+
 import config
 import util.data_generator as datagen
 import index.array_index as array
@@ -43,10 +45,15 @@ def main():
     # LI predictions -------------------------------------
 
     li_predictions = []
+    li_pred_times = []
     for run in range(config.N_RUNS):
         print("run # " + str(run + 1) + "/" + str(config.N_RUNS))
         li_predictions.append([])
+        li_pred_times.append([])
         for inter in range(0,config.N_INTERPOLATIONS):
+
+            tic = time.time()
+
             print("inter # " + str(inter + 1) + "/" + str(config.N_INTERPOLATIONS))
             inter_prediction = []
             try:
@@ -55,7 +62,7 @@ def main():
                 print("Skipped model {}_{}".format(run, inter))
                 li_predictions[run].append(inter_prediction)
                 continue
-            print(index_predictions[99999])
+            # print(index_predictions[99999])
             step = int(config.N_KEYS / config.N_SAMPLES)
             for key in range(0, config.N_KEYS, step):
                 data = all_data[run][inter]
@@ -63,19 +70,28 @@ def main():
                 inter_prediction.append(access.get_accesses(data, prediction,
                                                       key))
                 data.reset_access_count()
+
+            toc = time.time()
+
             li_predictions[run].append(inter_prediction)
+            li_pred_times[run].append(toc-tic)
     print("Done.")
 
     x = np.arange(0, config.N_INTERPOLATIONS)
 
+    # ---plot time-----
+    naive_times = np.average(li_pred_times, axis=0)
+    naive_times=np.divide(naive_times,config.N_SAMPLES)
+    plt.plot(x,naive_times)
+    plt.show()
 
-    y = np.average(np.average(li_predictions,axis=0), axis=1)
+    # --------------- plot reads ----------------------------------------------
+    naive_efficiency = np.average(np.average(li_predictions, axis=0), axis=1)
     fig, ax = plt.subplots()
-    ax.plot(x, y)
+    #ax.plot(x, naive_efficiency)
     ax.set(xlabel='key', ylabel='number of reads',
            title='Access times')
     ax.grid()
-    #plt.show()
 
 
     array_efficiency = [0,145,200,230,250,260,280,265,270,280]
@@ -87,8 +103,11 @@ def main():
     # Plotting functionality starts here
     #plt.plot(A, 'b')
     #plt.plot(B, 'C1')
-    plt.plot(y, 'g')
+    plt.plot(naive_efficiency, 'g')
     plt.show()
+    # ------------------------------------------------------------------------
+
+    # --------------------- plot times ---------------------------------------
 
 
 if __name__ == "__main__":
