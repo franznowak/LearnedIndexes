@@ -12,7 +12,14 @@ N_RUNS = 9
 N_SAMPLES = 1000
 # SEARCH:enum - Determine which search to use
 SEARCH = SearchType.EXPONENTIAL
-# FILE_PATH:str - Path where datasets are stored
-FILE_PATH = "data/"
+# INDEX:str - Type of index to be used
+INDEX = "naive_learned_index"
+
+# DATASET:str - Type of data
+DATASET = "Integers_100x10x100k"
+# DATASET_PATH:str - Path where dataset is stored
+DATASET_PATH = "data/datasets/"+DATASET
 # MODEL_PATH:str - Path where naive_models_0 are stored
-MODEL_PATH = "index/naive_models_2/"
+MODEL_PATH = "data/indexes/"+INDEX+"/"+DATASET
+
+PREDICTIONS_PATH = "data/predictions/"

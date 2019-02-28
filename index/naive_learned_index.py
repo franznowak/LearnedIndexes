@@ -14,7 +14,7 @@ import numpy as np
 
 
 def main():
-    config.FILE_PATH = "../" + config.FILE_PATH
+    config.DATASET_PATH = "../" + config.DATASET_PATH
     config.MODEL_PATH = "../" + config.MODEL_PATH
     # histories = train_model(1, 10, 100)
     # for history in histories:
@@ -26,7 +26,7 @@ def train_model(runs, interpolations, epochs):
     histories = []
     for i in range(runs):
         for j in range(interpolations):
-            dataset_path = config.FILE_PATH+'run{}inter{}'.format(i, j)
+            dataset_path = config.DATASET_PATH + 'run{}inter{}'.format(i, j)
 
             training_data, training_labels = prepare_data(dataset_path)
 
@@ -40,7 +40,7 @@ def train_model(runs, interpolations, epochs):
 
 
 def validate(run, interpolation):
-    dataset_path = config.FILE_PATH+'run{}inter{}'.format(run, interpolation)
+    dataset_path = config.DATASET_PATH + 'run{}inter{}'.format(run, interpolation)
 
     training_data, training_labels = prepare_data(dataset_path)
 
@@ -69,7 +69,7 @@ def predict(run, interpolation):
         raise FileNotFoundError(
             "No model trained for run{}inter{}".format(run, interpolation));
 
-    dataset_path = config.FILE_PATH + 'run{}inter{}'.format(run, interpolation)
+    dataset_path = config.DATASET_PATH + 'run{}inter{}'.format(run, interpolation)
 
     data, labels = get_testing_data(dataset_path)
 

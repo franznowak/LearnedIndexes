@@ -4,7 +4,7 @@ from util.datatypes import NumKeyValData
 
 
 def main():
-    config.FILE_PATH = "../" + config.FILE_PATH
+    config.DATASET_PATH = "../" + config.DATASET_PATH
     data = load_all_data()
 
 
@@ -23,7 +23,7 @@ def generate_all_data():
             run_data.append(interpolation_data)
 
             file_name = "run" + str(run) + "inter" + str(interpolation)
-            interpolation_data.save(config.FILE_PATH + file_name)
+            interpolation_data.save(config.DATASET_PATH + file_name)
 
         all_data.append(run_data)
     return all_data
@@ -38,7 +38,7 @@ def load_all_data():
         for interpolation in range(config.N_INTERPOLATIONS):
             interpolation_data = NumKeyValData()
             file_name = "run" + str(run) + "inter" + str(interpolation)
-            interpolation_data.load(config.FILE_PATH + file_name)
+            interpolation_data.load(config.DATASET_PATH + file_name)
             run_data.append(interpolation_data)
 
         all_data.append(run_data)
