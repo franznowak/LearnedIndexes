@@ -14,24 +14,8 @@ def main():
     all_data = datagen.load_all_data()
     print("Done.")
 
-    # for b in all_data[0]:
-    #     b.print_truncated()
-
     print("Start predictions...")
-    # array_predictions = []
-    # for run in range(config.N_RUNS):
-    #     print("run # " + str(run+1) + "/" + str(config.N_RUNS))
-    #     array_predictions.append([])
-    #     for inter in range(config.N_INTERPOLATIONS):
-    #         #array_predictions[run].append([])
-    #         prediction = []
-    #         step = int(config.N_KEYS / config.N_SAMPLES)
-    #         for i in range(0, config.N_KEYS, step):
-    #             prediction.append(array.array_predict(all_data[run][inter], i))
-    #             all_data[run][inter].reset_access_count()
-    #         array_predictions[run].append(prediction)
-    #
-    # print(array_predictions)
+
     #
     # x = np.arange(0, config.N_KEYS, int(config.N_KEYS / config.N_SAMPLES))
     # y = np.average(array_predictions, axis=0)[6]
