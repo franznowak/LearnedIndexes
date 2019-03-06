@@ -7,19 +7,19 @@ MAX_BLOCK_SIZE = 9
 # N_INTERPOLATIONS:int - For calculating a spread of how likely a jump is
 N_INTERPOLATIONS = 10
 # N_RUNS:int - Number of iterations with different seeds TODO: @@@ before: 100
-N_RUNS = 9
+N_RUNS = 100
 # N_SAMPLES:int - Number of points where access is sampled
 N_SAMPLES = 1000
 # SEARCH:enum - Determine which search to use
-SEARCH = SearchType.EXPONENTIAL
+SEARCH = SearchType.LINEAR
 # INDEX:str - Type of index to be used
 INDEX = "naive_learned_index"
 
 # DATASET:str - Type of data
 DATASET = "Integers_100x10x100k"
 # DATASET_PATH:str - Path where dataset is stored
-DATASET_PATH = "data/datasets/"+DATASET
+DATASET_PATH = "data/datasets/"+DATASET+"/"
 # MODEL_PATH:str - Path where naive_models_0 are stored
-MODEL_PATH = "data/indexes/"+INDEX+"/"+DATASET
+MODEL_PATH = "data/indexes/"+INDEX+"/"+DATASET+"/"
 
 PREDICTIONS_PATH = "data/predictions/"

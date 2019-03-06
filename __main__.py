@@ -16,15 +16,7 @@ def main():
 
     print("Start predictions...")
 
-    #
-    # x = np.arange(0, config.N_KEYS, int(config.N_KEYS / config.N_SAMPLES))
-    # y = np.average(array_predictions, axis=0)[6]
-    # fig, ax = plt.subplots()
-    # ax.plot(x, y)
-    # ax.set(xlabel='key', ylabel='number of reads',
-    #        title='Access time array predict data 6')
-    # ax.grid()
-    # #plt.show()
+
 
     # LI predictions -------------------------------------
 
@@ -62,18 +54,23 @@ def main():
     print("Done.")
 
     x = np.arange(0, config.N_INTERPOLATIONS)
+    x = np.tile(x,config.N_RUNS)
 
     # ---plot time-----
-    naive_times = np.average(li_pred_times, axis=0)
-    naive_times=np.divide(naive_times,config.N_SAMPLES)
-    plt.plot(x,naive_times)
+    # naive_times = np.average(li_pred_times, axis=0)
+    naive_times = np.asarray(li_pred_times).flatten(order='C')
+    naive_times = np.divide(naive_times, config.N_SAMPLES)
+    #plt.plot(x,naive_times)
+    plt.scatter(x, naive_times)
     plt.show()
 
     # --------------- plot reads ----------------------------------------------
-    naive_efficiency = np.average(np.average(li_predictions, axis=0), axis=1)
+    # naive_efficiency = np.average(np.average(li_predictions, axis=0), axis=1)
+    a = np.average(li_predictions, axis=2)
+    naive_efficiency = a.flatten(order='C')
     fig, ax = plt.subplots()
     #ax.plot(x, naive_efficiency)
-    ax.set(xlabel='key', ylabel='number of reads',
+    ax.set(xlabel='entropy', ylabel='number of reads',
            title='Access times')
     ax.grid()
 
@@ -87,7 +84,8 @@ def main():
     # Plotting functionality starts here
     #plt.plot(A, 'b')
     #plt.plot(B, 'C1')
-    plt.plot(naive_efficiency, 'g')
+    #plt.plot(naive_efficiency, 'g')
+    plt.scatter(x, naive_efficiency)
     plt.show()
     # ------------------------------------------------------------------------
 

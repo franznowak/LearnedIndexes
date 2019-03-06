@@ -40,6 +40,8 @@ def linear_search(data, start_index, target_value):
 def binary_search(data, target_value, left=0, right=None):
     if right is None:
         right = data.size - 1
+    left = max(0, left)
+    right = min(right, data.size - 1)
     while True:
         if right < left:
             raise Exception("value not found!")
@@ -54,7 +56,7 @@ def binary_search(data, target_value, left=0, right=None):
 
 
 def exponential_search(data, start_index, target_value):
-    index = start_index
+    index = max(0,min(data.size-1,start_index))
     value = data.read(index)
     jump = 2
     if value < target_value:
