@@ -16,7 +16,8 @@ if len(sys.argv) != 3:
 run = int(sys.argv[1])
 inter = int(sys.argv[2])
 
-filename = "data/run{}inter{}".format(run, inter)
+filename = "../data/datasets/Integers_100x10x100k/run{}inter{}".format(run,
+                                                                      inter)
 
 column_names = ['key', 'index']
 
@@ -48,7 +49,9 @@ callbacks = [keras.callbacks.EarlyStopping(monitor='mean_absolute_error',
                                            min_delta=0, patience=10,
                                            verbose=0, mode='auto',
                                            baseline=None),
-             keras.callbacks.ModelCheckpoint('naive_models_0/weights{}_{}.h5'.format(
+             keras.callbacks.ModelCheckpoint(
+                 "../data/indexes/naive_learned_index/Integers_100x10x100k"
+                 "/weights{}_{}.h5".format(
                                                                 run, inter),
                                              monitor='mean_absolute_error',
                                              verbose=0, save_best_only=True,

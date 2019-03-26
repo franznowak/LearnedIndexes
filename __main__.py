@@ -22,10 +22,12 @@ def main():
 
     li_predictions = []
     li_pred_times = []
-    for run in range(config.N_RUNS):
+    for run in range(0, config.N_RUNS):
         print("run # " + str(run + 1) + "/" + str(config.N_RUNS))
         li_predictions.append([])
         li_pred_times.append([])
+        if run < 0:
+            continue
         for inter in range(0,config.N_INTERPOLATIONS):
 
             tic = time.time()
@@ -38,7 +40,6 @@ def main():
                 print("Skipped model {}_{}".format(run, inter))
                 li_predictions[run].append(inter_prediction)
                 continue
-            # print(index_predictions[99999])
             step = int(config.N_KEYS / config.N_SAMPLES)
             for key in range(0, config.N_KEYS, step):
                 data = all_data[run][inter]
