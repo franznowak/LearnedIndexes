@@ -11,19 +11,23 @@ from keras import layers
 
 EPOCHS = 100
 
-if len(sys.argv) != 2:
-    raise Exception("This program requires 1 input argument")
+#if len(sys.argv) != 2:
+#    raise Exception("This program requires 1 input argument")
 
-run = int(sys.argv[1])
+#run = int(sys.argv[1])
 
-for inter in range(10):
+weigths_path = "../data/indexes/naive_learned_index/Integers_100x10x100k/"
+
+for run in range(100):
+    for inter in range(10):
 
 
         import os.path
-        if os.path.isfile("models/weights{}_{}.h5".format(run, inter)):
+        if os.path.isfile("{}weights{}_{}.h5".format(weigths_path, run, inter)):
                 continue;
 
-        filename = "data/run{}inter{}".format(run, inter)
+        #filename = "data/run{}inter{}".format(run, inter)
+        filename = "../data/datasets/Integers_100x10x100k/run{}inter{}".format(run, inter)
         column_names = ['key', 'index']
 
         raw_dataset = pd.read_csv(filename, names=column_names,
@@ -52,11 +56,10 @@ for inter in range(10):
                                                    min_delta=0, patience=10,
                                                    verbose=0, mode='auto',
                                                    baseline=None),
-                     keras.callbacks.ModelCheckpoint('models/weights{}_{}.h5'.format(
-                                                                        run, inter),
+                     keras.callbacks.ModelCheckpoint('{}/weights{}_{}.h5'.format(weigths_path, run, inter),
                                                      monitor='mean_absolute_error',
                                                      verbose=0, save_best_only=True,
                                                      save_weights_only=True,
-                                                     mode='auto',period=1)]
+                                                     mode='auto', period=1)]
         model.fit(train_dataset, train_labels, epochs=max_epochs, validation_split=1,
                   verbose=0, callbacks=callbacks)

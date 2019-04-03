@@ -4,6 +4,7 @@ import config
 import util.data_generator as datagen
 import index.array_index as array
 import numpy as np
+import matplotlib.cm as cm
 import index.naive_learned_index as li
 import util.access as access
 from matplotlib import pyplot as plt
@@ -64,7 +65,12 @@ def main():
     #plt.plot(x,naive_times)
     plt.scatter(x, naive_times)
     plt.show()
-
+    plt.hist2d(x, naive_times, 100)
+    plt.show()
+    plt.hist2d(x, naive_times, bins=100, cmap=cm.jet)
+    plt.show()
+    plt.hist2d(x, naive_times, bins=1000, cmap=cm.jet)
+    plt.show()
     # --------------- plot reads ----------------------------------------------
     # naive_efficiency = np.average(np.average(li_predictions, axis=0), axis=1)
     a = np.average(li_predictions, axis=2)
@@ -87,6 +93,12 @@ def main():
     #plt.plot(B, 'C1')
     #plt.plot(naive_efficiency, 'g')
     plt.scatter(x, naive_efficiency)
+    plt.show()
+    plt.hist2d(x, naive_efficiency, bins=100)
+    plt.show()
+    plt.hist2d(x, naive_efficiency, bins=100, cmap=cm.jet)
+    plt.show()
+    plt.hist2d(x, naive_efficiency, bins=1000, cmap=cm.jet)
     plt.show()
     # ------------------------------------------------------------------------
 
