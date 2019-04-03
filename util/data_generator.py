@@ -29,6 +29,14 @@ def generate_all_data():
     return all_data
 
 
+def load_data(run, inter):
+    print("loading data for run {} inter {}".format(run, inter))
+    data = NumKeyValData()
+    file_name = "run" + str(run) + "inter" + str(inter)
+    data.load(config.DATASET_PATH + file_name)
+    return data
+
+
 def load_all_data():
     all_data = []
     for run in range(config.N_RUNS):
@@ -36,9 +44,7 @@ def load_all_data():
             config.N_RUNS))
         run_data = []
         for interpolation in range(config.N_INTERPOLATIONS):
-            interpolation_data = NumKeyValData()
-            file_name = "run" + str(run) + "inter" + str(interpolation)
-            interpolation_data.load(config.DATASET_PATH + file_name)
+            interpolation_data = load_data(run, interpolation)
             run_data.append(interpolation_data)
 
         all_data.append(run_data)
