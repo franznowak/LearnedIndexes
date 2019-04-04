@@ -1,14 +1,21 @@
-import csv
 import config
+import logging
 from util.datatypes import NumKeyValData
 
-
-def main():
-    config.DATASET_PATH = "../" + config.DATASET_PATH
-    data = load_all_data()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
-def generate_all_data():
+def generate_integer_data():
+    """
+    Generates multiple integer datasets with different levels of entropy.
+
+    :return: a list of runs containing a list of interpolations of integer
+    data
+
+    """
+    logger.debug("generating all integer data in the specified range.")
+
     all_data = []
     for run in range(config.N_RUNS):
         print("creating data for run # " + str(run+1) + "/" + str(
@@ -29,22 +36,39 @@ def generate_all_data():
     return all_data
 
 
-def load_data(run, inter):
-    print("loading data for run {} inter {}".format(run, inter))
+def load_integer_data(run, inter):
+    """
+    Loads and returns the dataset for a specific run and interpolation.
+
+    :param run: the generation from which to return data
+    :param inter: the randomness level of the data
+
+    :return: the previously generated dataset of the specified run and
+    interpolation.
+
+    """
+    logger.debug("loading data for run {} inter {}.".format(run, inter))
+
     data = NumKeyValData()
     file_name = "run" + str(run) + "inter" + str(inter)
     data.load(config.DATASET_PATH + file_name)
     return data
 
 
-def load_all_data():
+def load_all_integer_data():
+    """
+    Loads and returns all the integer data for all runs and entropy levels.
+
+    :return: a list of runs of lists of integer data
+
+    """
     all_data = []
     for run in range(config.N_RUNS):
-        print("loading data for run # " + str(run+1) + "/" + str(
-            config.N_RUNS))
+        logger.debug("loaded {}/{} runs.".format(run+1,config.N_RUNS))
+
         run_data = []
         for interpolation in range(config.N_INTERPOLATIONS):
-            interpolation_data = load_data(run, interpolation)
+            interpolation_data = load_integer_data(run, interpolation)
             run_data.append(interpolation_data)
 
         all_data.append(run_data)
@@ -52,4 +76,4 @@ def load_all_data():
 
 
 if __name__ == "__main__":
-    main()
+    config.DATASET_PATH = "../" + config.DATASET_PATH
