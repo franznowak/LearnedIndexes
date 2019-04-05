@@ -50,8 +50,7 @@ def validate(run, interpolation):
                            interpolation))
     except FileNotFoundError:
         raise FileNotFoundError("No model trained for run{}inter{}".format(
-            run,
-                        interpolation))
+            run, interpolation))
     # We are over-fitting, so test using training data
     test_data = training_data
     test_labels = training_labels
@@ -64,12 +63,13 @@ def validate(run, interpolation):
 
 def predict(run, interpolation):
     import os.path
-    if not os.path.isfile(config.MODEL_PATH + "weights{}_{}.h5".format(run, \
-            interpolation)):
+    if not os.path.isfile(config.MODEL_PATH
+                          + "weights{}_{}.h5".format(run, interpolation)):
         raise FileNotFoundError(
             "No model trained for run{}inter{}".format(run, interpolation));
 
-    dataset_path = config.DATASET_PATH + 'run{}inter{}'.format(run, interpolation)
+    dataset_path = config.DATASET_PATH \
+                   + 'run{}inter{}'.format(run, interpolation)
 
     data, labels = get_testing_data(dataset_path)
 
@@ -77,11 +77,9 @@ def predict(run, interpolation):
 
     model.load_weights(config.MODEL_PATH + 'weights{}_{}.h5'.format(run,
                            interpolation))
-    # We are over-fitting, so test using training data
 
     prediction = model.predict(data).flatten()
 
-    # plot_prediction(labels, prediction)
     return labels, prediction
 
 

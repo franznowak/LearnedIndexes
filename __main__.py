@@ -1,6 +1,7 @@
 import time
 
 import config
+import logging
 import util.data_generator as datagen
 import index.array_index as array
 import numpy as np
@@ -11,13 +12,13 @@ from matplotlib import pyplot as plt
 
 
 def main():
-    print("loading data...")
-    all_data = datagen.load_all_data()
-    print("Done.")
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
 
-    print("Start predictions...")
+    logger.debug("Start predictions...")
 
-
+    import os
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
     # LI predictions -------------------------------------
 
@@ -30,29 +31,37 @@ def main():
         if run < 0:
             continue
         for inter in range(0,config.N_INTERPOLATIONS):
+            # load data for this run and interpolation
+            data = datagen.load_integer_data(run, inter)
 
-            tic = time.time()
 
             print("inter # " + str(inter + 1) + "/" + str(config.N_INTERPOLATIONS))
             inter_prediction = []
+
+            tic_pred = time.time()
             try:
                 keys, index_predictions = li.predict(run, inter)
             except FileNotFoundError as e:
                 print("Skipped model {}_{}".format(run, inter))
                 li_predictions[run].append(inter_prediction)
                 continue
+            toc_pred = time.time()
+
             step = int(config.N_KEYS / config.N_SAMPLES)
+
+            tic_search = time.time()
+
             for key in range(0, config.N_KEYS, step):
-                data = all_data[run][inter]
+
                 prediction = int(index_predictions[key])
                 inter_prediction.append(access.get_accesses(data, prediction,
                                                       key))
                 data.reset_access_count()
 
-            toc = time.time()
+            toc_search = time.time()
 
             li_predictions[run].append(inter_prediction)
-            li_pred_times[run].append(toc-tic)
+            li_pred_times[run].append(toc_search-tic_search)
     print("Done.")
 
     x = np.arange(0, config.N_INTERPOLATIONS)
@@ -61,26 +70,28 @@ def main():
     # ---plot time-----
     # naive_times = np.average(li_pred_times, axis=0)
     naive_times = np.asarray(li_pred_times).flatten(order='C')
-    naive_times = np.divide(naive_times, config.N_SAMPLES)
-    #plt.plot(x,naive_times)
+    naive_times = np.divide(naive_times, config.N_SAMPLES) # N_KEYS for tic_pred
+    # get microseconds
+    naive_times = np.multiply(naive_times, 1000000)
+
+    fig, ax = plt.subplots()
+    ax.set(xlabel='entropy', ylabel='time in microseconds',
+           title='Access time in microseconds')
+    ax.grid()
+
     plt.scatter(x, naive_times)
     plt.show()
-    plt.hist2d(x, naive_times, 100)
+    plt.hist2d(x, naive_times, bins=50, cmap=cm.jet)
     plt.show()
-    plt.hist2d(x, naive_times, bins=100, cmap=cm.jet)
-    plt.show()
-    plt.hist2d(x, naive_times, bins=1000, cmap=cm.jet)
-    plt.show()
+
     # --------------- plot reads ----------------------------------------------
     # naive_efficiency = np.average(np.average(li_predictions, axis=0), axis=1)
     a = np.average(li_predictions, axis=2)
     naive_efficiency = a.flatten(order='C')
     fig, ax = plt.subplots()
-    #ax.plot(x, naive_efficiency)
     ax.set(xlabel='entropy', ylabel='number of reads',
-           title='Access times')
+           title='Average reads required for search')
     ax.grid()
-
 
     array_efficiency = [0,145,200,230,250,260,280,265,270,280]
     btree_efficiency = [70 for _ in range(10)]
@@ -92,14 +103,12 @@ def main():
     #plt.plot(A, 'b')
     #plt.plot(B, 'C1')
     #plt.plot(naive_efficiency, 'g')
+
     plt.scatter(x, naive_efficiency)
     plt.show()
-    plt.hist2d(x, naive_efficiency, bins=100)
+    plt.hist2d(x, naive_efficiency, bins=50, cmap=cm.jet)
     plt.show()
-    plt.hist2d(x, naive_efficiency, bins=100, cmap=cm.jet)
-    plt.show()
-    plt.hist2d(x, naive_efficiency, bins=1000, cmap=cm.jet)
-    plt.show()
+
     # ------------------------------------------------------------------------
 
     # --------------------- plot times ---------------------------------------
