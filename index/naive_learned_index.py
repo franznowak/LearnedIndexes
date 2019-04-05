@@ -1,15 +1,10 @@
 from __future__ import absolute_import, division, print_function
-
 import pandas as pd
-
 import tensorflow as tf
 import keras
 from keras import layers
-
 import matplotlib.pyplot as plt
-
 import config
-
 import numpy as np
 
 
@@ -94,7 +89,7 @@ def train_upto(model, data, labels, checkpoint_name, epochs=100):
                                                  verbose=0, save_best_only=True,
                                                  save_weights_only=True,
                                                  mode='auto',
-                                                 period=1), PrintDot()]
+                                                 period=1)]
 
     history = model.fit(
         data, labels,
@@ -200,13 +195,141 @@ def plot_prediction(labels, prediction):
     plt.show()
 
 
-# Display training progress by printing a single dot for each completed epoch
-class PrintDot(keras.callbacks.Callback):
-    def on_epoch_end(self, epoch, logs):
-        if epoch % 100 == 0:
-            print('')
-        print('.', end='')
-
-
 if __name__ == "__main__":
     main()
+
+
+class Model:
+    """
+    A neural network with one-dimensional input and output and definable
+    complexity.
+    Usage: initialise, then train, then predict.
+
+    """
+    def __init__(self, complexity, data_filename, checkpoint_name):
+        """
+        Initialises the neural network.
+
+        :param complexity: a list of widths of the layers of the neural network
+        :param data_filename: the name of the csv file containing the data to be
+        indexed
+        :param checkpoint_name: file in which to store model weights
+
+        """
+        self.complexity = complexity
+        self.model = self._build_model(complexity)
+
+        self.data_filename = data_filename
+        self.checkpoint_name = checkpoint_name
+
+        self.trained = False
+
+    def train(self, training_data, checkpoint_name, epochs=100):
+        """
+        Trains the model on the training_data and saves the weights.
+
+        :param training_data: data on which to train the model
+        :param checkpoint_name: filename of the weights file
+        :param epochs: number of epochs for which to train.
+
+        :return: history object of the training process
+
+        """
+        max_epochs = epochs
+
+        (data, labels) = prepare_data(training_data)
+
+        callbacks = [
+            keras.callbacks.EarlyStopping(monitor='mean_absolute_error',
+                                          min_delta=0, patience=10,
+                                          verbose=0, mode='auto',
+                                          baseline=None),
+            keras.callbacks.ModelCheckpoint(checkpoint_name,
+                                            monitor='mean_absolute_error',
+                                            verbose=0, save_best_only=True,
+                                            save_weights_only=True,
+                                            mode='auto',
+                                            period=1)]
+
+        history = self.model.fit(
+            data, labels,
+            epochs=max_epochs, validation_split=1, verbose=0,
+            callbacks=callbacks)
+
+        self.trained = True
+
+        return history
+
+    def load(self, weights_filename):
+        """
+        Loads the weights from a file
+
+        :param weights_filename: name of the weights file
+
+        """
+        self.model.load_weights(weights_filename)
+
+    def predict(self, key):
+        """
+        Predicts the position of the data based on the key
+
+        :param key: int key input to the model
+        :return: prediction of position
+
+        """
+        return self.model.predict(key).flatten()
+
+    @staticmethod
+    def _build_model(complexity, step_size):
+        """
+        Builds a model according to the specifications given in init.
+
+        :return: a neural network model of specified complexity
+
+        """
+
+        model_layers = []
+
+        for i in range(len(complexity)):
+            if i == 0:
+                # Input layer takes a single key
+                model_layers = layers.Dense(complexity[0],
+                                            activation=tf.nn.relu,
+                                            input_shape=[1])
+            else:
+                # Hidden layers
+                model_layers.append(layers.Dense(complexity[i],
+                                    activation=tf.nn.relu))
+
+        # Output layer outputs single key
+        model_layers.append(layers.Dense(1))
+
+        model = keras.Sequential(model_layers)
+
+        optimizer = tf.train.RMSPropOptimizer(step_size)
+
+        model.compile(loss='mse',
+                      optimizer=optimizer,
+                      metrics=['mae', 'mse'])
+
+        return model
+
+    @staticmethod
+    def _build_standard_model(step_size):
+        """
+        Builds a standard model with 1 hidden layer of 32 neurons.
+
+        :return: the model
+
+        """
+        model = keras.Sequential([
+            layers.Dense(32, activation=tf.nn.relu, input_shape=[1]),
+            layers.Dense(32, activation=tf.nn.relu),
+            layers.Dense(1)
+        ])
+
+        optimizer = tf.train.RMSPropOptimizer(step_size)
+
+        model.compile(loss='mse',
+                           optimizer=optimizer,
+                           metrics=['mae', 'mse'])
