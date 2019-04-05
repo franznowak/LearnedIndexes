@@ -19,7 +19,8 @@ def train_hybrid(stages, all_data, run, inter, NN_complexity, threshold:int):
     :param all_data:
         list of all the data (key-index pairs) for the dataset.
     :param NN_complexity:
-        width and depth of the NNs for each node in the regression tree.
+        list of lists of (width, depth) tuples of the NNs for all NN-model in the
+        regression tree.
     :param threshold:
         max absolute error of NN before other index is used.
 
@@ -30,21 +31,25 @@ def train_hybrid(stages, all_data, run, inter, NN_complexity, threshold:int):
 
     M = len(stages)
 
-    tmp_records = [[]]
-    tmp_records[0].append(all_data)
+    tmp_records = []
+    for i in range(M):
+        tmp_records.append([])
+        for j in range(stages[i]):
+            tmp_records[i].append([])
 
-    for i in range(0, M):
+    tmp_records[0][0] = all_data
+
+    for i in range(M):
         trained_index.append([])
-        for j in range(0, stages[i]):
-            model = train_new_model(run, inter, train_dataset=None,
-                                    train_labels=None)
+        for j in range(stages[i]):
+            model = train_new_model(run, inter, NN_complexity[i][j],
+                                    tmp_records[i][j])
             trained_index[i].append(model)
-            # TODO: replace empty by new NN trained on tmp_records[i][j]
             # load data into array somewhere
 
             if i < M:
                 for r in tmp_records[i][j]:
-                    p = trained_index[i][j].predict(r.key)/stages[i+1]
+                    p = int(trained_index[i][j].predict(r.key)/stages[i+1])
                     tmp_records[i+1][p].add(r)
 
     # if error too high (above threshold) replace with b-tree here
@@ -84,8 +89,5 @@ if __name__ == "__main__":
     for i in range(config.N_RUNS):
         for j in range(config.N_INTERPOLATIONS):
             index = train_hybrid([1, 2, 3], '{}/run{}inter{}'.format(
-                DATA_PATH, i, j), )
-
-            # TODO:
-            # grid
-            # search
+                DATA_PATH, i, j), i, j, None, 0)
+            # TODO: grid search
