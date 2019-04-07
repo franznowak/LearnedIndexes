@@ -206,45 +206,40 @@ class Model:
     Usage: initialise, then train, then predict.
 
     """
-    def __init__(self, complexity, data_filename, checkpoint_name):
+    def __init__(self, complexity, training_data, checkpoint_name):
         """
         Initialises the neural network.
 
         :param complexity: a list of widths of the layers of the neural network
-        :param data_filename: the name of the csv file containing the data to be
-        indexed
+        :param training_data: an array containing key, index pairs
         :param checkpoint_name: file in which to store model weights
 
         """
         self.complexity = complexity
         self.model = self._build_model(complexity)
 
-        self.data_filename = data_filename
+        self.training_data = training_data
         self.checkpoint_name = checkpoint_name
 
         self.trained = False
 
-    def train(self, training_data, checkpoint_name, epochs=100):
+    def train(self, epochs=100):
         """
         Trains the model on the training_data and saves the weights.
-
-        :param training_data: data on which to train the model
-        :param checkpoint_name: filename of the weights file
-        :param epochs: number of epochs for which to train.
 
         :return: history object of the training process
 
         """
         max_epochs = epochs
 
-        (data, labels) = prepare_data(training_data)
+        (data, labels) = prepare_data(self.training_data)
 
         callbacks = [
             keras.callbacks.EarlyStopping(monitor='mean_absolute_error',
                                           min_delta=0, patience=10,
                                           verbose=0, mode='auto',
                                           baseline=None),
-            keras.callbacks.ModelCheckpoint(checkpoint_name,
+            keras.callbacks.ModelCheckpoint(self.checkpoint_name,
                                             monitor='mean_absolute_error',
                                             verbose=0, save_best_only=True,
                                             save_weights_only=True,
