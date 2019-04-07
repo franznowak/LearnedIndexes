@@ -14,6 +14,8 @@ N_SAMPLES = 1000
 SEARCH = SearchType.LINEAR
 # INDEX:str - Type of index to be used
 INDEX = "naive_learned_index"
+# STEP_SIZE:float - the step size used in training for the neural network
+STEP_SIZE = 0.001
 
 # DATASET:str - Type of data
 DATASET = "Integers_100x10x100k"
