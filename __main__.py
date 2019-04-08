@@ -36,44 +36,47 @@ def main():
             # load data for this run and interpolation
             data = datagen.load_integer_data(run, inter)
 
-            print("inter #{}/{}".format((inter + 1),config.N_INTERPOLATIONS))
-            inter_prediction = []
+            print("inter #{}/{}".format((inter + 1), config.N_INTERPOLATIONS))
 
-            tic_pred = time.time()
-            try:
-                keys, index_predictions = li.predict(run, inter)
-            except FileNotFoundError as e:
-                print("Skipped model {}_{}".format(run, inter))
-                li_predictions[run].append(inter_prediction)
-                continue
-            toc_pred = time.time()
+            import os.path
+            if not os.path.isfile(config.MODEL_PATH +
+                                  "weights{}_{}.h5".format(run, inter)):
+                raise FileNotFoundError(
+                    "No model trained for run{}inter{}".format(run, inter))
+
+            dataset_path = config.DATASET_PATH+'run{}inter{}'.format(run, inter)
+            cp_name = config.MODEL_PATH + 'weights{}_{}.h5'.format(run, inter)
+
+            learned_index = li.Model([32, 32], dataset_path, cp_name,
+                                     config.STEP_SIZE)
+            learned_index.load_weights(cp_name)
 
             step = int(config.N_KEYS / config.N_SAMPLES)
 
-            tic_search = time.time()
-
+            predictions = {}
+            tic_pred = time.time()
             for key in range(0, config.N_KEYS, step):
+                predictions[key]=learned_index.predict(key)
+            toc_pred = time.time()
 
-                prediction = int(index_predictions[key])
-                inter_prediction.append(access.get_accesses(data, prediction,
-                                                      key))
+            inter_prediction_reads = []
+            tic_search = time.time()
+            for key in range(0, config.N_KEYS, step):
+                reads = access.get_accesses(data, predictions[key], key)
+                inter_prediction_reads.append(reads)
                 data.reset_access_count()
-
             toc_search = time.time()
 
-            li_predictions[run].append(inter_prediction)
+            li_predictions[run].append(inter_prediction_reads)
             li_pred_times[run].append(toc_pred-tic_pred)
             li_search_times[run].append(toc_search-tic_search)
     print("Done.")
-
-    x = np.arange(0, config.N_INTERPOLATIONS)
-    x = np.tile(x, config.N_RUNS)
 
     # ---------------- process time -------------------------------------------
 
     # naive_pred_times = np.average(li_pred_times, axis=0)
     naive_pred_times = np.asarray(li_pred_times).flatten(order='C')
-    naive_pred_times = np.divide(naive_pred_times, config.N_KEYS)
+    naive_pred_times = np.divide(naive_pred_times, config.N_SAMPLES)
 
     naive_search_times = np.asarray(li_search_times).flatten(order='C')
     naive_search_times = np.divide(naive_search_times, config.N_SAMPLES)
