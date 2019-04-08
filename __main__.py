@@ -6,6 +6,7 @@ import logging
 import util.data_generator as datagen
 import index.array_index as array
 import numpy as np
+import pandas as pd
 import matplotlib.cm as cm
 import index.naive_learned_index as li
 import util.access as access
@@ -85,7 +86,18 @@ def main():
 
     # ---------------- save time ----------------------------------------------
 
-    # TODO: csv.write() x 2
+    # with open(config.PREDICTIONS_PATH + "pred_times.csv", "w") as csvFile1:
+    #     writer = csv.writer(csvFile1)
+    #     writer.writerows(naive_pred_times.tolist())
+    #
+    # with open(config.PREDICTIONS_PATH + "search_times.csv", "w") as csvFile2:
+    #     writer = csv.writer(csvFile2)
+    #     writer.writerows(naive_search_times.tolist())
+
+    pd.DataFrame(naive_pred_times).to_csv(config.PREDICTIONS_PATH +
+                                          "pred_times.csv")
+    pd.DataFrame(naive_search_times).to_csv(config.PREDICTIONS_PATH +
+                                            "search_times.csv")
 
     # ---------------- plot time ----------------------------------------------
     # prediction
@@ -126,7 +138,12 @@ def main():
 
     # ---------------- save reads ---------------------------------------------
 
-    # TODO: csv.write()
+    # with open(config.PREDICTIONS_PATH + "reads.csv", "w") as csvFile3:
+    #     writer = csv.writer(csvFile3)
+    #     writer.writerows(naive_efficiency.tolist())
+
+    pd.DataFrame(naive_efficiency).to_csv(config.PREDICTIONS_PATH +
+                                          "reads.csv")
 
     # --------------- plot reads ----------------------------------------------
 
