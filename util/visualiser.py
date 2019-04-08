@@ -23,13 +23,13 @@ def show(kind: str, index: str, dataset: str, showAverage=False):
     # prediction time
     pred = pd.read_csv(
         config.PREDICTIONS_PATH + "pred_times.csv", header=None)
-    plot(pred, kind, title="Access time in microseconds",
+    plot(pred, kind, title="Prediction time per key in microseconds",
          ylabel="time in microseconds")
 
     # search
     search = pd.read_csv(
         config.PREDICTIONS_PATH + "search_times.csv", header=None)
-    plot(search, kind, title="Access time in microseconds",
+    plot(search, kind, title="Search time per key in microseconds",
          ylabel='time in microseconds')
 
     # reads
