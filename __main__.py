@@ -1,16 +1,14 @@
-import csv
 import time
 
 import config
+import util.visualiser as visualiser
 import logging
 import util.data_generator as datagen
 import index.array_index as array
 import numpy as np
 import pandas as pd
-import matplotlib.cm as cm
 import index.naive_learned_index as li
 import util.access as access
-from matplotlib import pyplot as plt
 
 
 def main():
@@ -84,51 +82,11 @@ def main():
     naive_pred_times = np.multiply(naive_pred_times, 1000000)
     naive_search_times = np.multiply(naive_search_times, 1000000)
 
-    # ---------------- save time ----------------------------------------------
-
-    # with open(config.PREDICTIONS_PATH + "pred_times.csv", "w") as csvFile1:
-    #     writer = csv.writer(csvFile1)
-    #     writer.writerows(naive_pred_times.tolist())
-    #
-    # with open(config.PREDICTIONS_PATH + "search_times.csv", "w") as csvFile2:
-    #     writer = csv.writer(csvFile2)
-    #     writer.writerows(naive_search_times.tolist())
-
+    # save time
     pd.DataFrame(naive_pred_times).to_csv(config.PREDICTIONS_PATH +
-                                          "pred_times.csv")
+                                          "pred_times.csv", header=None)
     pd.DataFrame(naive_search_times).to_csv(config.PREDICTIONS_PATH +
-                                            "search_times.csv")
-
-    # ---------------- plot time ----------------------------------------------
-    # prediction
-    fig, ax = plt.subplots()
-    ax.set(xlabel='entropy', ylabel='time in microseconds',
-           title='Access time in microseconds')
-    ax.grid()
-    plt.scatter(x, naive_pred_times)
-    plt.show()
-
-    fig, ax = plt.subplots()
-    ax.set(xlabel='entropy', ylabel='time in microseconds',
-           title='Access time in microseconds')
-    ax.grid()
-    plt.hist2d(x, naive_pred_times, bins=50, cmap=cm.jet)
-    plt.show()
-
-    # search
-    fig, ax = plt.subplots()
-    ax.set(xlabel='entropy', ylabel='time in microseconds',
-           title='Access time in microseconds')
-    ax.grid()
-    plt.scatter(x, naive_search_times)
-    plt.show()
-
-    fig, ax = plt.subplots()
-    ax.set(xlabel='entropy', ylabel='time in microseconds',
-           title='Access time in microseconds')
-    ax.grid()
-    plt.hist2d(x, naive_search_times, bins=50, cmap=cm.jet)
-    plt.show()
+                                            "search_times.csv", header=None)
 
     # ---------------- process reads ------------------------------------------
 
@@ -136,45 +94,13 @@ def main():
     a = np.average(li_predictions, axis=2)
     naive_efficiency = a.flatten(order='C')
 
-    # ---------------- save reads ---------------------------------------------
-
-    # with open(config.PREDICTIONS_PATH + "reads.csv", "w") as csvFile3:
-    #     writer = csv.writer(csvFile3)
-    #     writer.writerows(naive_efficiency.tolist())
-
+    # save reads
     pd.DataFrame(naive_efficiency).to_csv(config.PREDICTIONS_PATH +
-                                          "reads.csv")
+                                          "reads.csv", header=None)
 
-    # --------------- plot reads ----------------------------------------------
-
-    fig, ax = plt.subplots()
-    ax.set(xlabel='entropy', ylabel='number of reads',
-           title='Average reads required for search')
-    ax.grid()
-
-    # array_efficiency = [0,145,200,230,250,260,280,265,270,280]
-    # btree_efficiency = [70 for _ in range(10)]
-    #
-    # A = array_efficiency
-    # B = btree_efficiency
-    #
-    # plt.plot(A, 'b')
-    # plt.plot(B, 'C1')
-    # plt.plot(naive_efficiency, 'g')
-
-    plt.scatter(x, naive_efficiency)
-    plt.show()
-
-    fig, ax = plt.subplots()
-    ax.set(xlabel='entropy', ylabel='number of reads',
-           title='Average reads required for search')
-    ax.grid()
-    plt.hist2d(x, naive_efficiency, bins=50, cmap=cm.jet)
-    plt.show()
-
-    # ------------------------------------------------------------------------
-
-    # --------------------- plot times ---------------------------------------
+    # plot all
+    visualiser.show("scatter", "", "")
+    visualiser.show("hist2d", "", "")
 
 
 if __name__ == "__main__":
