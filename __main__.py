@@ -47,7 +47,9 @@ def main():
             dataset_path = config.DATASET_PATH+'run{}inter{}'.format(run, inter)
             cp_name = config.MODEL_PATH + 'weights{}_{}.h5'.format(run, inter)
 
-            learned_index = li.Model([32, 32], dataset_path, cp_name,
+            training_data = li.Model.load_training_data(dataset_path)
+
+            learned_index = li.Model([32, 32], training_data, cp_name,
                                      config.STEP_SIZE)
             learned_index.load_weights(cp_name)
 
@@ -74,11 +76,10 @@ def main():
 
     # ---------------- process time -------------------------------------------
 
-    # naive_pred_times = np.average(li_pred_times, axis=0)
-    naive_pred_times = np.asarray(li_pred_times).flatten(order='C')
+    naive_pred_times = np.asarray(li_pred_times).transpose()
     naive_pred_times = np.divide(naive_pred_times, config.N_SAMPLES)
 
-    naive_search_times = np.asarray(li_search_times).flatten(order='C')
+    naive_search_times = np.asarray(li_search_times).transpose()
     naive_search_times = np.divide(naive_search_times, config.N_SAMPLES)
 
     # get microseconds
@@ -86,20 +87,28 @@ def main():
     naive_search_times = np.multiply(naive_search_times, 1000000)
 
     # save time
-    pd.DataFrame(naive_pred_times).to_csv(config.PREDICTIONS_PATH +
-                                          "pred_times.csv", header=None)
-    pd.DataFrame(naive_search_times).to_csv(config.PREDICTIONS_PATH +
-                                            "search_times.csv", header=None)
+    filename = config.PREDICTIONS_PATH+"pred_times.csv"
+    with open(filename, mode='w') as file:
+        for i in range(len(naive_pred_times)):
+            for j in range(len(naive_pred_times[i])):
+                file.write("{},{}\n".format(i, naive_pred_times[i][j]))
+
+    filename = config.PREDICTIONS_PATH + "search_times.csv"
+    with open(filename, mode='w') as file:
+        for i in range(len(naive_search_times)):
+            for j in range(len(naive_search_times[i])):
+                file.write("{},{}\n".format(i, naive_search_times[i][j]))
 
     # ---------------- process reads ------------------------------------------
 
-    # naive_efficiency = np.average(np.average(li_predictions, axis=0), axis=1)
-    a = np.average(li_predictions, axis=2)
-    naive_efficiency = a.flatten(order='C')
+    naive_efficiency = np.average(li_predictions, axis=2).transpose()
 
     # save reads
-    pd.DataFrame(naive_efficiency).to_csv(config.PREDICTIONS_PATH +
-                                          "reads.csv", header=None)
+    filename = config.PREDICTIONS_PATH + "reads.csv"
+    with open(filename, mode='w') as file:
+        for i in range(len(naive_efficiency)):
+            for j in range(len(naive_efficiency[i])):
+                file.write("{},{}\n".format(i, naive_efficiency[i][j]))
 
     # plot all
     visualiser.show("scatter", "", "")
