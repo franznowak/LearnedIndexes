@@ -18,7 +18,8 @@ class Model:
         """
         Initialises the neural network.
 
-        :param complexity: a list of widths of the layers of the neural network
+        :param complexity: a list of widths of the hidden layers of the neural
+        network
         :param training_data: an array containing key, index pairs
         :param checkpoint_name: file in which to store model weights
         :param step_size: the alpha value for training the neural net
@@ -109,26 +110,20 @@ class Model:
 
         plt.show()
 
-    def _prepare_data(self, path):
+    def _prepare_data(self, dataset):
         """
         Prepares data from csv file for training.
 
-        :param path: the path to a csv file of key, index pairs
+        :param dataset: a pandas dataframe of key, index pairs
 
         :return: tuple of training_data (key,label pairs), training_labels
 
         """
-        column_names = ['key', 'index']
-        raw_dataset = pd.read_csv(path, names=column_names,
-                                  na_values="?", comment='\t',
-                                  sep=",", skipinitialspace=True)
-
-        train_dataset = raw_dataset.copy()
-
+        train_dataset = dataset.copy()
         train_labels = train_dataset.pop('index')
 
         # Normalise data
-        self.stats = train_dataset.describe().transpose()
+        self.stats = train_dataset.astype('int64').describe().transpose()
 
         train_dataset = self._norm(train_dataset)
 
@@ -140,26 +135,36 @@ class Model:
 
         :param path: the path to a csv file with key, index pairs
 
-        :return: keys normed and
+        :return: normed keys and labels
+        """
+        dataset = self.load_training_data(path)
+
+        dataset.drop_duplicates(subset="key", keep='first', inplace=True)
+        true_labels = dataset.pop('index')
+
+        keys = pd.DataFrame(np.array(
+            [i for i in range(len(true_labels.keys()))]))
+
+        normed_keys = self._norm(keys)
+
+        return normed_keys, true_labels
+
+    @staticmethod
+    def load_training_data(path):
+        """
+        Loads training data from csv file.
+
+        :param path: the path to a csv file with key, index pairs
+
+        :return: a data frame of keys and values
+
         """
         column_names = ['key', 'index']
         dataset = pd.read_csv(path, names=column_names,
                               na_values="?", comment='\t',
                               sep=",", skipinitialspace=True)
 
-        dataset.drop_duplicates(subset="key", keep='first', inplace=True)
-        true_labels = dataset.pop('index')
-
-        keys = pd.DataFrame(
-            np.array([i for i in range(len(true_labels.keys()))]))
-
-        # Normalise data
-        train_stats = keys.describe()
-        train_stats = train_stats.transpose()
-
-        normed_keys = self._norm(keys)
-
-        return normed_keys, true_labels
+        return dataset
 
     @staticmethod
     def _build_model(complexity, step_size):
@@ -224,4 +229,7 @@ class Model:
         :return: normalised data for training
 
         """
+        # try:
         return (x - self.stats['mean']) / self.stats['std']
+        # except KeyError as ke:
+        #     return x
