@@ -1,11 +1,15 @@
+import time
+
 from index.naive_learned_index import Model
 import pandas as pd
 import config
 
 
 EPOCHS = 2000
-WEIGHTS_PATH = "../data/indexes/recursive_learned_index"
-DATA_PATH = "../data/datasets/synthetic/Integers_1x10x1k"
+DATA_SET = "Integers_1x10x1k/"
+WEIGHTS_PATH = "../data/indexes/recursive_learned_index/" + DATA_SET
+DATA_PATH = "../data/datasets/" + DATA_SET
+GRAPH_PATH = "../data/graphs/recursive_learned_index/" + DATA_SET
 
 
 def train_recursive(stages, all_data, nn_complexity, step_size):
@@ -45,10 +49,11 @@ def train_recursive(stages, all_data, nn_complexity, step_size):
         for j in range(stages[i]):
             model = Model(nn_complexity[i],
                           tmp_records[i][j],
-                          "{}/weights{}_{}.h5"
-                          .format(WEIGHTS_PATH, i, j), step_size)
+                          "{}weights{}_{}.h5"
+                          .format(WEIGHTS_PATH, i, j, step_size))
             model.train(EPOCHS)
-            model.plot_history()
+            model.plot_history('{}{}_history_{}_{}.png'
+                               .format(GRAPH_PATH, int(time.time()), i, j))
             trained_index[i].append(model)
             if i < n_stages-1:
                 rs = tmp_records[i][j]
@@ -69,6 +74,6 @@ def train_recursive(stages, all_data, nn_complexity, step_size):
 
 if __name__ == "__main__":
     train_recursive([1, 2, 4], Model.load_training_data(
-        '{}/run{}inter{}'.format(DATA_PATH, 0, 9)),
+        '{}run{}inter{}'.format(DATA_PATH, 0, 9)),
                     [[4, 4], [4, 4], [1]],
                     config.STEP_SIZE)

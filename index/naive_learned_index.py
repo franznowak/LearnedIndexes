@@ -1,4 +1,7 @@
 from __future__ import absolute_import, division, print_function
+
+import time
+
 import pandas as pd
 import tensorflow as tf
 import keras
@@ -45,7 +48,7 @@ class Model:
 
         callbacks = [
             keras.callbacks.EarlyStopping(monitor='mean_absolute_error',
-                                          min_delta=0, patience=10,
+                                          min_delta=0, patience=0,
                                           verbose=0, mode='auto',
                                           baseline=None),
             keras.callbacks.ModelCheckpoint(self.checkpoint_name,
@@ -85,7 +88,15 @@ class Model:
         normed_key = self._norm(key)
         return int(self.model.predict([normed_key]).flatten())
 
-    def plot_history(self, metric='mae'):
+    def plot_history(self, output_filename='history.png', metric='mae'):
+        """
+        Saves a plot of the training history to a png file.
+
+        :param output_filename: filename for the history picture
+        :param metric: either 'mse' or 'mae' for mean squared error or mean
+        absolute error, respectively
+
+        """
         hist = pd.DataFrame(self.history.history)
         hist['epoch'] = self.history.epoch
 
@@ -93,10 +104,11 @@ class Model:
             plt.figure()
             plt.xlabel('Epoch')
             plt.ylabel('Mean Abs Error')
-            plt.plot(hist['epoch'], hist['mean_absolute_error'],
+            epochs = len(hist['epoch'])
+            plt.plot(hist['epoch'][epochs-21:epochs-1],
+                     hist['mean_absolute_error'][epochs-21:epochs-1],
                      label='Train Error')
             plt.legend()
-            plt.ylim([0, 1000])
         elif metric == 'mse':
             plt.figure()
             plt.xlabel('Epoch')
@@ -104,11 +116,10 @@ class Model:
             plt.plot(hist['epoch'], hist['mean_squared_error'],
                      label='Train Error')
             plt.legend()
-            plt.ylim([0, 800])
         else:
             raise NameError("metric \"{}\" not recognised".format(metric))
 
-        plt.show()
+        plt.savefig(output_filename)
 
     def _prepare_data(self, dataset):
         """
@@ -229,7 +240,4 @@ class Model:
         :return: normalised data for training
 
         """
-        # try:
         return (x - self.stats['mean']) / self.stats['std']
-        # except KeyError as ke:
-        #     return x

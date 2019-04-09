@@ -87,32 +87,33 @@ def main():
     naive_search_times = np.multiply(naive_search_times, 1000000)
 
     # save time
-    filename = config.PREDICTIONS_PATH+"pred_times.csv"
-    with open(filename, mode='w') as file:
-        for i in range(len(naive_pred_times)):
-            for j in range(len(naive_pred_times[i])):
-                file.write("{},{}\n".format(i, naive_pred_times[i][j]))
-
-    filename = config.PREDICTIONS_PATH + "search_times.csv"
-    with open(filename, mode='w') as file:
-        for i in range(len(naive_search_times)):
-            for j in range(len(naive_search_times[i])):
-                file.write("{},{}\n".format(i, naive_search_times[i][j]))
+    save_predictions(naive_pred_times, "pred_times")
+    save_predictions(naive_search_times, "search_times")
 
     # ---------------- process reads ------------------------------------------
 
     naive_efficiency = np.average(li_predictions, axis=2).transpose()
 
     # save reads
-    filename = config.PREDICTIONS_PATH + "reads.csv"
-    with open(filename, mode='w') as file:
-        for i in range(len(naive_efficiency)):
-            for j in range(len(naive_efficiency[i])):
-                file.write("{},{}\n".format(i, naive_efficiency[i][j]))
+    save_predictions(naive_efficiency, "reads")
 
     # plot all
     visualiser.show("scatter", "", "")
     visualiser.show("hist2d", "", "")
+
+
+def save_predictions(data, file):
+    fn = "{}{}_{}.csv".format(config.PREDICTIONS_PATH, int(time.time()), file)
+    write_predictions_to_file(data, fn)
+    fn2 = "{}new_{}.csv".format(config.PREDICTIONS_PATH, file)
+    write_predictions_to_file(data, fn2)
+
+
+def write_predictions_to_file(data, filename):
+    with open(filename, mode='w') as file:
+        for i in range(len(data)):
+            for j in range(len(data[i])):
+                file.write("{},{}\n".format(i, data[i][j]))
 
 
 if __name__ == "__main__":

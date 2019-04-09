@@ -1,11 +1,11 @@
-import os
 import config
 import pandas as pd
 from matplotlib import pyplot as plt
 import matplotlib.cm as cm
 
 
-def show(kind: str, index: str, dataset: str, showAverage=False):
+def show(kind: str, index: str, dataset: str, timestamp='new',
+         showAverage=False):
     """
     plots a view of the predicition made by an index for a data set.
 
@@ -15,6 +15,8 @@ def show(kind: str, index: str, dataset: str, showAverage=False):
         the index whose prediction shall be shown.
     :param dataset:
         the data set that the prediction was made with.
+    :param timestamp:
+        timestamp of the predictions, default: 'new' for latest
     :param showAverage:
         specifies if there should be a line that shows the average of the runs
 
@@ -22,19 +24,19 @@ def show(kind: str, index: str, dataset: str, showAverage=False):
 
     # prediction time
     pred = pd.read_csv(
-        config.PREDICTIONS_PATH + "pred_times.csv", header=None)
+        config.PREDICTIONS_PATH + timestamp + "_pred_times.csv", header=None)
     plot(pred, kind, title="Prediction time per key in microseconds",
          ylabel="time in microseconds")
 
     # search
     search = pd.read_csv(
-        config.PREDICTIONS_PATH + "search_times.csv", header=None)
+        config.PREDICTIONS_PATH + timestamp + "_search_times.csv", header=None)
     plot(search, kind, title="Search time per key in microseconds",
          ylabel='time in microseconds')
 
     # reads
     reads = pd.read_csv(
-        config.PREDICTIONS_PATH + "reads.csv", header=None)
+        config.PREDICTIONS_PATH + timestamp + "_reads.csv", header=None)
     plot(reads, kind, title='Average reads required for search',
          ylabel="number of reads")
 
