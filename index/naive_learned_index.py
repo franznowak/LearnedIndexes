@@ -1,13 +1,12 @@
 from __future__ import absolute_import, division, print_function
 
-import time
-
 import pandas as pd
 import tensorflow as tf
 import keras
 import matplotlib.pyplot as plt
 import numpy as np
 from keras import layers
+from li_exceptions import ModelNotTrainedException
 
 
 class Model:
@@ -17,14 +16,13 @@ class Model:
     Usage: initialise, then train, then predict.
 
     """
-    def __init__(self, complexity, training_data, checkpoint_name, step_size):
+    def __init__(self, complexity, training_data, step_size=0.001):
         """
         Initialises the neural network.
 
         :param complexity: a list of widths of the hidden layers of the neural
         network
         :param training_data: an array containing key, index pairs
-        :param checkpoint_name: file in which to store model weights
         :param step_size: the alpha value for training the neural net
 
         """
@@ -33,13 +31,15 @@ class Model:
 
         self.stats = None
         self.data, self.labels = self._prepare_data(training_data)
-        self.checkpoint_name = checkpoint_name
         self.history = None
         self.trained = False
 
-    def train(self, epochs=100):
+    def train(self, checkpoint_name, epochs=100):
         """
         Trains the model on the training_data and saves the weights.
+
+        :param checkpoint_name: file in which to store model weights
+        :param epochs: number of epochs to train for, default:100
 
         :return: history object of the training process
 
@@ -51,7 +51,7 @@ class Model:
                                           min_delta=0, patience=0,
                                           verbose=0, mode='auto',
                                           baseline=None),
-            keras.callbacks.ModelCheckpoint(self.checkpoint_name,
+            keras.callbacks.ModelCheckpoint(checkpoint_name,
                                             monitor='mean_absolute_error',
                                             verbose=0, save_best_only=True,
                                             save_weights_only=True,
@@ -76,6 +76,7 @@ class Model:
 
         """
         self.model.load_weights(weights_filename)
+        self.trained = True
 
     def predict(self, key):
         """
@@ -85,6 +86,9 @@ class Model:
         :return: prediction of position
 
         """
+        if not self.trained:
+            raise ModelNotTrainedException()
+
         normed_key = self._norm(key)
         return int(self.model.predict([normed_key]).flatten())
 
@@ -161,17 +165,17 @@ class Model:
         return normed_keys, true_labels
 
     @staticmethod
-    def load_training_data(path):
+    def load_training_data(filename):
         """
         Loads training data from csv file.
 
-        :param path: the path to a csv file with key, index pairs
+        :param filename: the path to a csv file with key, index pairs
 
         :return: a data frame of keys and values
 
         """
         column_names = ['key', 'index']
-        dataset = pd.read_csv(path, names=column_names,
+        dataset = pd.read_csv(filename, names=column_names,
                               na_values="?", comment='\t',
                               sep=",", skipinitialspace=True)
 

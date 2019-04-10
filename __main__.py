@@ -4,9 +4,7 @@ import config
 import util.visualiser as visualiser
 import logging
 import util.data_generator as datagen
-import index.array_index as array
 import numpy as np
-import pandas as pd
 import index.naive_learned_index as li
 import util.access as access
 
