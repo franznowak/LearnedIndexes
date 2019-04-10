@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 import sys
+import time
 
 import pandas as pd
 
@@ -10,14 +11,10 @@ from tensorflow.keras import layers
 
 EPOCHS = 100
 
-if len(sys.argv) != 3:
+if len(sys.argv) != 2:
     raise Exception("This program requires 2 input arguments")
 
-run = int(sys.argv[1])
-inter = int(sys.argv[2])
-
-filename = "../data/datasets/Integers_100x10x100k/run{}inter{}".format(run,
-                                                                      inter)
+filename = sys.argv[1]
 
 column_names = ['key', 'index']
 
@@ -50,13 +47,11 @@ callbacks = [keras.callbacks.EarlyStopping(monitor='mean_absolute_error',
                                            verbose=0, mode='auto',
                                            baseline=None),
              keras.callbacks.ModelCheckpoint(
-                 "../data/indexes/naive_learned_index/Integers_100x10x100k"
-                 "/weights{}_{}.h5".format(
-                                                                run, inter),
-                                             monitor='mean_absolute_error',
-                                             verbose=0, save_best_only=True,
-                                             save_weights_only=True,
-                                             mode='auto',
-                                             period=1)]
+                 "weights_{}.h5".format(int(time.time())),
+                 monitor='mean_absolute_error',
+                 verbose=0, save_best_only=True,
+                 save_weights_only=True,
+                 mode='auto',
+                 period=1)]
 model.fit(train_dataset, train_labels, epochs=max_epochs, validation_split=1,
           verbose=0, callbacks=callbacks)

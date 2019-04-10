@@ -4,13 +4,6 @@ from index.naive_learned_index import Model
 import pandas as pd
 
 
-EPOCHS = 2000
-DATA_SET = "Integers_100x10x100k/"
-WEIGHTS_PATH = "../data/indexes/recursive_learned_index/" + DATA_SET
-DATA_PATH = "../data/datasets/" + DATA_SET
-GRAPH_PATH = "../data/graphs/recursive_learned_index/" + DATA_SET
-
-
 class RecursiveLearnedIndex:
     """
     A regression tree of neural networks that takes a one dimensional input
@@ -36,15 +29,19 @@ class RecursiveLearnedIndex:
         self.data_size = 0  # the total number of true indexes
         self.index = None
 
-    def train(self, all_data, step_size=0.001):
+    def train(self, all_data, weights_path='', graph_path='', epochs=100):
         """
         Hybrid end-to-end training algorithm as described in The Case For
         Learned Index Structures, Kraska et al.
 
         :param all_data:
             dataframe of all the data (key-index pairs) of the dataset.
-        :param step_size:
-            step value for the gradient descent of the NN-training.
+        :param weights_path:
+            path where model weights shall be stored.
+        :param graph_path:
+            path where training history graphs shall be stored.
+        :param epochs:
+            number of epochs for the gradient descent of the NN-training.
 
         :return trained_index
 
@@ -69,9 +66,9 @@ class RecursiveLearnedIndex:
                 model = Model(self.nn_complexity[i],
                               tmp_records[i][j])
                 model.train("{}weights{}_{}.h5"
-                            .format(WEIGHTS_PATH, i, j, step_size), EPOCHS)
+                            .format(weights_path, i, j), epochs)
                 model.plot_history('{}{}_history_{}_{}.png'
-                                   .format(GRAPH_PATH, int(time.time()), i, j))
+                                   .format(graph_path, int(time.time()), i, j))
                 trained_index[i].append(model)
                 if i < n_stages-1:
                     rs = tmp_records[i][j]
@@ -137,10 +134,3 @@ class RecursiveLearnedIndex:
             j = self._get_next_model_index(i, self.index[i][j].predict(key))
 
         return self.index[n_stages-1][j].predict(key)
-
-
-if __name__ == "__main__":
-    learned_index = RecursiveLearnedIndex([1, 2, 4], [[4, 4], [4, 4], [1]])
-    learned_index.train(Model.load_training_data('{}run{}inter{}'.format(DATA_PATH, 0, 9)))
-    # learned_index.load_models(WEIGHTS_PATH,Model.load_training_data('{}run{}inter{}'.format(DATA_PATH, 0, 9)))
-    print(learned_index.predict(500))
