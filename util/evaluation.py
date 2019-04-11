@@ -10,18 +10,18 @@ import logging
 import util.integer_data_generator as datagen
 import numpy as np
 import index.naive_learned_index as li
-import util.access as access
+import util.search as searcher
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-def measure_synthetic_integer_predictions(index_type):
+def measure_synthetic_integer_predictions(index_model):
     """
     Measures prediction times for runs and interpolations of synthetic Integer
     data and saves them to file.
 
-    :param index_type: type of index to be used for predictions
+    :param index_model: index to be used for predictions
 
     """
     logger.debug("Start predictions...")
@@ -72,8 +72,7 @@ def measure_synthetic_integer_predictions(index_type):
 
             tic_search = time.time()
             for key in range(0, config.N_KEYS, step):
-                reads = access.get_search_access_count(data, predictions[key],
-                                                       key)
+                reads = get_search_access_count(data, predictions[key], key)
                 inter_prediction_reads.append(reads)
                 data.reset_access_count()
             toc_search = time.time()
@@ -109,7 +108,7 @@ def measure_synthetic_integer_predictions(index_type):
     visualiser.show("hist2d", config.PREDICTIONS_PATH)
 
 
-def prediction():
+def predict():
     pass
 
 
@@ -144,3 +143,17 @@ def write_predictions_to_file(data, filename):
                 file.write("{},{}\n".format(i, data[i][j]))
 
 
+def get_search_access_count(input_data, prediction, key):
+    """
+    Searches for the key and returns the data accesses that were necessary to
+    find it.
+
+    :param input_data: the data of type NumKeyValData
+    :param prediction: the estimated position of the key in the data
+    :param key: the key to be found
+
+    :return: number of accesses used in search
+
+    """
+    searcher.search(input_data, prediction, key)
+    return input_data.get_access_count()
