@@ -1,3 +1,9 @@
+# --------------------------------------------------------------------
+# naive_train_model.py - standalone script for training a single naive
+# learned index on one iteration of the integer training data.
+# December 2018 - May 2019 Franz Nowak
+# --------------------------------------------------------------------
+
 from __future__ import absolute_import, division, print_function
 
 import sys

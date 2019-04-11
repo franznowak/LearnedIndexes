@@ -1,3 +1,8 @@
+# --------------------------------------------------------------------
+# integer_data_generator.py - functions for generating synthetic integer data
+# December 2018 - May 2019 Franz Nowak
+# --------------------------------------------------------------------
+
 import config
 import logging
 from util.datatypes import NumKeyValData
@@ -30,7 +35,7 @@ def generate_integer_data():
             run_data.append(interpolation_data)
 
             file_name = "run" + str(run) + "inter" + str(interpolation)
-            interpolation_data.save(config.DATASET_PATH + file_name)
+            interpolation_data.save(config.INTEGER_DATASET_PATH + file_name)
 
         all_data.append(run_data)
     return all_data
@@ -51,7 +56,7 @@ def load_integer_data(run, inter):
 
     data = NumKeyValData()
     file_name = "run" + str(run) + "inter" + str(inter)
-    data.load(config.DATASET_PATH + file_name)
+    data.load(config.INTEGER_DATASET_PATH + file_name)
     return data
 
 
@@ -64,7 +69,7 @@ def load_all_integer_data():
     """
     all_data = []
     for run in range(config.N_RUNS):
-        logger.debug("loaded {}/{} runs.".format(run+1,config.N_RUNS))
+        logger.debug("loaded {}/{} runs.".format(run+1, config.N_RUNS))
 
         run_data = []
         for interpolation in range(config.N_INTERPOLATIONS):
@@ -73,7 +78,3 @@ def load_all_integer_data():
 
         all_data.append(run_data)
     return all_data
-
-
-if __name__ == "__main__":
-    config.DATASET_PATH = "../" + config.DATASET_PATH

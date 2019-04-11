@@ -1,20 +1,17 @@
-import config
 import pandas as pd
 from matplotlib import pyplot as plt
 import matplotlib.cm as cm
+from li_exceptions import PlotTypeNotSupported
 
 
-def show(kind: str, index: str, dataset: str, timestamp='new',
-         showAverage=False):
+def show(predictions_path: str, kind: str, timestamp='new', showAverage=False):
     """
     plots a view of the predicition made by an index for a data set.
 
+    :param predictions_path:
+        path at which the prediction data is stored
     :param kind:
         type of plot to be used: "scatter" or "hist2d"
-    :param index:
-        the index whose prediction shall be shown.
-    :param dataset:
-        the data set that the prediction was made with.
     :param timestamp:
         timestamp of the predictions, default: 'new' for latest
     :param showAverage:
@@ -24,19 +21,25 @@ def show(kind: str, index: str, dataset: str, timestamp='new',
 
     # prediction time
     pred = pd.read_csv(
-        config.PREDICTIONS_PATH + timestamp + "_pred_times.csv", header=None)
+        predictions_path + timestamp + "_pred_times.csv", header=None)
     plot(pred, kind, title="Prediction time per key in microseconds",
          ylabel="time in microseconds")
 
-    # search
+    # search time
     search = pd.read_csv(
-        config.PREDICTIONS_PATH + timestamp + "_search_times.csv", header=None)
+        predictions_path + timestamp + "_search_times.csv", header=None)
     plot(search, kind, title="Search time per key in microseconds",
          ylabel='time in microseconds')
 
-    # reads
+    # search time
+    search = pd.read_csv(
+        predictions_path + timestamp + "_total_times.csv", header=None)
+    plot(search, kind, title="Total index time in microseconds",
+         ylabel='time in microseconds')
+
+    # number of reads
     reads = pd.read_csv(
-        config.PREDICTIONS_PATH + timestamp + "_reads.csv", header=None)
+        predictions_path + timestamp + "_reads.csv", header=None)
     plot(reads, kind, title='Average reads required for search',
          ylabel="number of reads")
 
@@ -59,13 +62,6 @@ def plot(data, kind: str, title: str, ylabel: str, binsize=50):
         plt.scatter(data[0], data[1])
     elif kind == "hist2d":
         plt.hist2d(data[0], data[1], bins=binsize, cmap=cm.jet)
+    else:
+        raise(PlotTypeNotSupported())
     plt.show()
-
-
-def main():
-    show("hist2d", "naive_learned_index", "Integers_100x10x100k")
-
-
-if __name__ == "__main__":
-    config.PREDICTIONS_PATH = "../"+config.PREDICTIONS_PATH
-    main()

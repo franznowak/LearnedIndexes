@@ -1,3 +1,8 @@
+# --------------------------------------------------------------------
+# btree_index.py - class of a standard B-tree implementation
+# December 2018 - May 2019 Franz Nowak (added a method for counting data access)
+# --------------------------------------------------------------------
+
 #
 # B-tree set (Python)
 #
@@ -199,7 +204,7 @@ class BTreeSet(object):
                                 None) != size:
             raise AssertionError("Size mismatch")
 
-    # My own access time method (Franz Nowak, 29/11/2018)
+    # My added access time method (Franz Nowak, 29/11/2018)
     def count_reads_to(self, obj):
         count = 0
         # Walk down the tree

@@ -1,3 +1,9 @@
+# --------------------------------------------------------------------
+# csv_to_training_data.py - Script converting real world data into usable
+# training data.
+# December 2018 - May 2019 Franz Nowak
+# --------------------------------------------------------------------
+
 """
 Script that takes a filename of a csv that has the keys in its first
 column and returns training data of key, index pairs.

@@ -1,15 +1,30 @@
+# --------------------------------------------------------------------
+# search - various search functions for finding an index by key in data.
+# December 2018 - May 2019 Franz Nowak
+# --------------------------------------------------------------------
+
 from enum import Enum, auto
 import config
 import numpy as np
 
 
 class SearchType(Enum):
+    """ Enum for all currently supported search types"""
     LINEAR = auto()
     BINARY = auto()
     EXPONENTIAL = auto()
 
 
-def search(data, start_index, target_value, search_type=None):
+def search(data, start_index, target_value, search_type: SearchType = None):
+    """
+    Searches the data for an index.
+
+    :param data: the data to be searched
+    :param start_index: the initial estimate of the index
+    :param target_value: the key that we are searching for
+    :param search_type: SearchType, type of search to be used
+
+    """
     if search_type is None:
         search_type = config.SEARCH
 
@@ -24,6 +39,14 @@ def search(data, start_index, target_value, search_type=None):
 
 
 def linear_search(data, start_index, target_value):
+    """
+    Search linearly through the data, takes linear time in size of dataset.
+
+    :param data: the data to be searched
+    :param start_index: the initial estimate of the index
+    :param target_value: the key that we are searching for
+
+    """
     index = max(0, min(data.size-1, start_index))
     value = data.read(index)
     while value < target_value:
@@ -38,6 +61,17 @@ def linear_search(data, start_index, target_value):
 
 
 def binary_search(data, target_value, left=0, right=None):
+    """
+    Searches the whole dataset using binary search.
+
+    :param data: the data to be searched
+    :param target_value: the key that we are searching for
+    :param left: leftmost index in data
+    :param right: rightmost index in data
+
+    :return: index
+
+    """
     if right is None:
         right = data.size - 1
     left = max(0, left)
@@ -56,7 +90,17 @@ def binary_search(data, target_value, left=0, right=None):
 
 
 def exponential_search(data, start_index, target_value):
-    index = max(0,min(data.size-1,start_index))
+    """
+    Searches around a predicted record in  exponentially larger areas
+
+    :param data: the data to be searched
+    :param start_index: the initial estimate of the index
+    :param target_value: the key that we are searching for
+
+    :return: index
+
+    """
+    index = max(0, min(data.size-1, start_index))
     value = data.read(index)
     jump = 2
     if value < target_value:

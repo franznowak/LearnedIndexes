@@ -13,15 +13,15 @@ N_SAMPLES = 1000
 # SEARCH:enum - Determine which search to use
 SEARCH = SearchType.LINEAR
 # INDEX:str - Type of index to be used
-INDEX = "naive_learned_index"
+INDEX = "naive_learned_index"  # TODO: make variable
 # STEP_SIZE:float - the step size used in training for the neural network
 STEP_SIZE = 0.001
 
-# DATASET:str - Type of data
-DATASET = "Integers_100x10x100k"
-# DATASET_PATH:str - Path where dataset is stored
-DATASET_PATH = "data/datasets/"+DATASET+"/"
+# INTEGER_DATASET:str - The synthetic dataset of integers
+INTEGER_DATASET = "Integers_100x10x100k"
+# INTEGER_DATASET_PATH:str - Path where dataset is stored
+INTEGER_DATASET_PATH = "data/datasets/"+INTEGER_DATASET+"/"
 # MODEL_PATH:str - Path where naive_models_0 are stored
-MODEL_PATH = "data/indexes/"+INDEX+"/"+DATASET+"/"
+MODEL_PATH = "data/indexes/"+INDEX+"/"+INTEGER_DATASET+"/"
 # MODEL_PATH:str - Path where prediction results are stored
-PREDICTIONS_PATH = "data/predictions/"+INDEX+"/"+DATASET+"/"
+PREDICTIONS_PATH = "data/predictions/"+INDEX+"/"+INTEGER_DATASET+"/"

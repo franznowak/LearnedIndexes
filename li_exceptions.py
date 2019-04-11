@@ -7,7 +7,8 @@
 
 
 class ModelNotTrainedException(Exception):
-    """Exception when there are no predictions found for this index"""
+    """Exception for when there is an attempt to use a model before training
+    it"""
     pass
 
 
@@ -17,6 +18,11 @@ class NoPredictionForIndex(Exception):
 
 
 class NoPredictionsForDataset(Exception):
-    """Exception for when there are no predictions found for this data set."""
+    """Exception for when there are no predictions found for this data set"""
     pass
 
+
+class PlotTypeNotSupported(Exception):
+    """Exception for when the visualiser is called with a plot type that is
+    not supported"""
+    pass

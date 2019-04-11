@@ -1,3 +1,8 @@
+# --------------------------------------------------------------------
+# recursive_train_model - script to train the recursive learned index
+# December 2018 - May 2019 Franz Nowak
+# --------------------------------------------------------------------
+
 from index.recursive_learned_index import RecursiveLearnedIndex
 from index.naive_learned_index import Model
 

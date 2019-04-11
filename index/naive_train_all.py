@@ -1,4 +1,10 @@
 #!/home/fgn24/tensorflow-env/bin/python
+# --------------------------------------------------------------------
+# naive_train_all.py - standalone script for training naive learned index on
+# all iterations of integer data
+# December 2018 - May 2019 Franz Nowak
+# --------------------------------------------------------------------
+
 from __future__ import absolute_import, division, print_function
 
 import sys

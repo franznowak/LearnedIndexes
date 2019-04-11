@@ -1,3 +1,8 @@
+# --------------------------------------------------------------------
+# naive_learned_index - Model class implementing a naive learned index
+# December 2018 - May 2019 Franz Nowak
+# --------------------------------------------------------------------
+
 from __future__ import absolute_import, division, print_function
 
 import pandas as pd

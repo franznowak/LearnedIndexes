@@ -1,3 +1,8 @@
+# --------------------------------------------------------------------
+# recursive_learned_index.py - class for making predictions using index
+# December 2018 - May 2019 Franz Nowak
+# --------------------------------------------------------------------
+
 import time
 
 from index.naive_learned_index import Model

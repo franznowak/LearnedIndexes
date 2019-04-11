@@ -1,3 +1,9 @@
+# --------------------------------------------------------------------
+# hybrid_learned_index.py - function outlining training of a hybrid learned
+# index.
+# December 2018 - May 2019 Franz Nowak
+# --------------------------------------------------------------------
+
 from .naive_learned_index import Model
 
 
