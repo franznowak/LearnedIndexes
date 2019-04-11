@@ -22,6 +22,11 @@ class NoPredictionsForDataset(Exception):
     pass
 
 
+class NoEvaluationImplemented(Exception):
+    """Exception for when there is no evaluation for a certain index type"""
+    pass
+
+
 class PlotTypeNotSupported(Exception):
     """Exception for when the visualiser is called with a plot type that is
     not supported"""

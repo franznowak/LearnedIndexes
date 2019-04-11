@@ -32,7 +32,7 @@ train_labels = train_dataset.pop('index')
 # Normalise data
 train_stats = train_dataset.describe()
 train_stats = train_stats.transpose()
-train_dataset = (train_dataset - train_stats['mean']) / train_stats['std']  # ?
+train_dataset = (train_dataset - train_stats['mean']) / train_stats['std']
 
 size = len(train_dataset.keys())
 

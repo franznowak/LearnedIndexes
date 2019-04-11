@@ -1,7 +1,7 @@
 import pandas as pd
 from matplotlib import pyplot as plt
 import matplotlib.cm as cm
-from li_exceptions import PlotTypeNotSupported
+from custom_exceptions import PlotTypeNotSupported
 
 
 def show(predictions_path: str, kind: str, timestamp='new', showAverage=False):

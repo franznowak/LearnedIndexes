@@ -70,10 +70,10 @@ class RecursiveLearnedIndex:
             for j in range(self.stages[i]):
                 model = Model(self.nn_complexity[i],
                               tmp_records[i][j])
-                model.train("{}weights{}_{}.h5"
-                            .format(weights_path, i, j), epochs)
-                model.plot_history('{}{}_history_{}_{}.png'
-                                   .format(graph_path, int(time.time()), i, j))
+                model.train(weights_path, "weights{}_{}.h5"
+                            .format(i, j), epochs)
+                model.plot_history(graph_path,'{}_history_{}_{}.png'
+                                   .format(int(time.time()), i, j))
                 trained_index[i].append(model)
                 if i < n_stages-1:
                     rs = tmp_records[i][j]

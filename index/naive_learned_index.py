@@ -10,8 +10,9 @@ import tensorflow as tf
 import keras
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 from keras import layers
-from li_exceptions import ModelNotTrainedException
+from custom_exceptions import ModelNotTrainedException
 
 
 class Model:
@@ -39,10 +40,11 @@ class Model:
         self.history = None
         self.trained = False
 
-    def train(self, checkpoint_name, epochs=100):
+    def train(self, weights_path, checkpoint_name, epochs=100):
         """
         Trains the model on the training_data and saves the weights.
 
+        :param weights_path: path where model is to be stored
         :param checkpoint_name: file in which to store model weights
         :param epochs: number of epochs to train for, default:100
 
@@ -50,6 +52,9 @@ class Model:
 
         """
         max_epochs = epochs
+
+        if not os.path.isdir(weights_path):
+            os.mkdir(weights_path)
 
         callbacks = [
             keras.callbacks.EarlyStopping(monitor='mean_absolute_error',
@@ -97,11 +102,13 @@ class Model:
         normed_key = self._norm(key)
         return int(self.model.predict([normed_key]).flatten())
 
-    def plot_history(self, output_filename='history.png', metric='mae'):
+    def plot_history(self, output_path='', output_filename='history.png',
+                     metric='mae'):
         """
         Saves a plot of the training history to a png file.
 
         :param output_filename: filename for the history picture
+        :param output_path: path where history shall be stored
         :param metric: either 'mse' or 'mae' for mean squared error or mean
         absolute error, respectively
 
@@ -128,7 +135,9 @@ class Model:
         else:
             raise NameError("metric \"{}\" not recognised".format(metric))
 
-        plt.savefig(output_filename)
+        if output_path != '' and not os.path.isdir(output_path):
+            os.mkdir(output_path)
+        plt.savefig(output_path + output_filename)
 
     def _prepare_data(self, dataset):
         """
