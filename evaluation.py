@@ -35,7 +35,7 @@ def measure_predictions_on_synthetic_integers(index_type):
 
     for run in range(0, config.N_RUNS):
 
-        print("run # " + str(run + 1) + "/" + str(config.N_RUNS))
+        print("run #" + str(run))
 
         n_reads.append([])
         prediction_times.append([])
@@ -43,25 +43,22 @@ def measure_predictions_on_synthetic_integers(index_type):
 
         for inter in range(0, config.N_INTERPOLATIONS):
 
-            print("inter #{}/{}".format((inter + 1), config.N_INTERPOLATIONS))
+            print("inter #" + str(inter))
 
             data = datagen.load_integer_data(run, inter)
 
-            dataset_file = model_file = ""
-            # load model data if it is a naive learned index
-            if index_type == "naive_learned_index":
-                dataset_file = config.INTEGER_DATASET_PATH \
-                    + 'run{}inter{}'.format(run, inter)
-                if not os.path.isfile(model_file):
-                    raise FileNotFoundError(
-                        "No data found at {}".format(dataset_file))
-                model_file = \
-                    config.MODEL_PATH + index_type + config.INTEGER_DATASET +\
-                    '/weights{}_{}.h5'.format(run, inter)
-                if not os.path.isfile(model_file):
-                    raise FileNotFoundError(
-                        "No model trained for {} run{}inter{}".format(
-                            index_type, run, inter))
+            # load model data if it is a learned index
+            dataset_file = config.INTEGER_DATASET_PATH + \
+                'run{}inter{}'.format(run, inter)
+
+            if index_type == "recursive_learned_index":
+                model_file = config.MODEL_PATH + index_type + "/" + \
+                             config.INTEGER_DATASET + \
+                             '/run{}inter{}/'.format(run, inter)
+            else:
+                model_file = config.MODEL_PATH + index_type + "/" + \
+                            config.INTEGER_DATASET + \
+                            '/weights{}_{}'.format(run, inter)
 
             inter_prediction_reads, prediction_time, search_time = \
                 get_prediction_times(index_type, data, dataset_file, model_file)
@@ -84,10 +81,17 @@ def measure_predictions_on_synthetic_integers(index_type):
 
     naive_efficiency = np.average(n_reads, axis=2).transpose()
 
-    prediction_path = config.PREDICTIONS_PATH + index_type \
-        + config.INTEGER_DATASET + "/"
+    # Set where predictions are stored
+    prediction_path = config.PREDICTIONS_PATH + index_type + "/" + \
+        config.INTEGER_DATASET + "/"
     if not os.path.isdir(prediction_path):
         os.mkdir(prediction_path)
+
+    # Set where graphs are stored
+    graph_path = config.GRAPH_PATH + index_type + "/" + \
+        config.INTEGER_DATASET + "/"
+    if not os.path.isdir(graph_path):
+        os.mkdir(graph_path)
 
     # save time
     save_predictions(pred_times, prediction_path, "pred_times")
@@ -96,8 +100,8 @@ def measure_predictions_on_synthetic_integers(index_type):
     save_predictions(naive_efficiency, prediction_path, "reads")
 
     # plot all
-    visualiser.create_graphs(prediction_path, "scatter")
-    visualiser.create_graphs(prediction_path, "hist2d")
+    visualiser.create_graphs(prediction_path,  graph_path, "scatter")
+    visualiser.create_graphs(prediction_path, graph_path, "hist2d")
 
 
 def get_prediction_times(index_type, data, dataset_file="", model_file=""):
@@ -182,8 +186,8 @@ def evaluate_btree_index(data):
 
 def evaluate_naive_learned_index(data, dataset_file, model_file):
     training_data = Model.load_training_data(dataset_file)
-    index = Model([32, 32], training_data, model_file)
-    index.load_weights(model_file)
+    naive_index = Model(config.NAIVE_COMPLEXITY, training_data, model_file)
+    naive_index.load_weights(model_file)
 
     step = int(config.N_KEYS / config.N_SAMPLES)
 
@@ -191,7 +195,7 @@ def evaluate_naive_learned_index(data, dataset_file, model_file):
 
     tic_pred = time.time()
     for key in range(0, config.N_KEYS, step):
-        predictions[key] = index.predict(key)
+        predictions[key] = naive_index.predict(key)
     toc_pred = time.time()
 
     inter_prediction_reads = []
@@ -210,10 +214,33 @@ def evaluate_naive_learned_index(data, dataset_file, model_file):
 
 
 def evaluate_recursive_learned_index(data, dataset_file, model_path):
-    raise NoEvaluationImplemented
-    # recursive_index = RecursiveLearnedIndex(config.RECURSIVE_SHAPE,
-    #                                         config.RECURSIVE_COMPLEXITY)
-    # training_data = Model.load_training_data(dataset_file)
+    training_data = Model.load_training_data(dataset_file)
+    recursive_index = RecursiveLearnedIndex(config.RECURSIVE_SHAPE,
+                                            config.RECURSIVE_COMPLEXITY)
+    recursive_index.load_models(training_data, model_path)
+
+    step = int(config.N_KEYS / config.N_SAMPLES)
+
+    predictions = {}
+
+    tic_pred = time.time()
+    for key in range(0, config.N_KEYS, step):
+        predictions[key] = recursive_index.predict(key)
+    toc_pred = time.time()
+
+    inter_prediction_reads = []
+
+    tic_search = time.time()
+    for key in range(0, config.N_KEYS, step):
+        reads = get_search_access_count(data, predictions[key], key)
+        inter_prediction_reads.append(reads)
+        data.reset_access_count()
+    toc_search = time.time()
+
+    prediction_time = (toc_pred - tic_pred) / config.N_SAMPLES
+    search_time = (toc_search - tic_search) / config.N_SAMPLES
+
+    return inter_prediction_reads, prediction_time, search_time
 
 
 def save_predictions(data, path, filename):
@@ -227,10 +254,10 @@ def save_predictions(data, path, filename):
 
     """
     # filename with timestamp
-    fn = "{}{}_{}.csv".format(path, int(time.time()), filename)
+    fn = "{}_{}.csv".format(int(time.time()), filename)
     write_predictions_to_file(data,  path, fn)
     # filename for latest available data
-    fn2 = "{}new_{}.csv".format(path, filename)
+    fn2 = "new_{}.csv".format(filename)
     write_predictions_to_file(data, path, fn2)
 
 

@@ -11,4 +11,4 @@ for evaluation.
 
 """
 
-evaluation.measure_predictions_on_synthetic_integers(None)
+evaluation.measure_predictions_on_synthetic_integers("recursive_learned_index")

@@ -90,23 +90,24 @@ class RecursiveLearnedIndex:
 
         self.index = trained_index
 
-    def load_models(self, weights_path, data):
+    def load_models(self, all_data, weights_path):
         """
         Loads previously trained model weights from a specified location and
         initialises the index.
 
-        :param weights_path: the location containing the model weights
-        :param data: dataframe of all the data (key-index pairs) of the
+        :param all_data: dataframe of all the data (key-index pairs) of the
         dataset.
+        :param weights_path: the location containing the model weights
+
 
         """
-        self.data_size = len(data.index)
+        self.data_size = len(all_data.index)
 
         self.index = []
         for i in range(len(self.stages)):
             self.index.append([])
             for j in range(self.stages[i]):
-                model = Model(self.nn_complexity[i], data)
+                model = Model(self.nn_complexity[i], all_data)
                 model.load_weights("{}weights{}_{}.h5"
                                    .format(weights_path, i, j))
                 self.index[i].append(model)

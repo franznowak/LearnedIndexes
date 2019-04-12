@@ -20,11 +20,9 @@ RECURSIVE_COMPLEXITY = [[32, 32], [32, 32]]
 # STEP_SIZE:float - the step size used in training for the neural network
 STEP_SIZE = 0.001
 
-# SEARCH:enum - Determine which search to use
+# SEARCH:enum - Determine which search to use (Linear finds absolute error)
 SEARCH = SearchType.LINEAR
 
-# INDEX:str - Type of index to be used
-INDEX = "naive_learned_index"
 # INTEGER_DATASET:str - The synthetic dataset of integers
 INTEGER_DATASET = "Integers_100x10x100k"
 # REAL_WORLD_DATASET:str - The real world dataset of credit card transactions

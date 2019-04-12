@@ -85,6 +85,9 @@ class Model:
         :param weights_filename: name of the weights file
 
         """
+        if not os.path.isfile(weights_filename):
+            raise FileNotFoundError("No model weights found at " +
+                                    weights_filename)
         self.model.load_weights(weights_filename)
         self.trained = True
 
@@ -189,6 +192,8 @@ class Model:
         :return: a data frame of keys and values
 
         """
+        if not os.path.isfile(filename):
+            raise FileNotFoundError("No data found at " + filename)
         column_names = ['key', 'index']
         dataset = pd.read_csv(filename, names=column_names,
                               na_values="?", comment='\t',

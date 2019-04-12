@@ -6,7 +6,7 @@ import matplotlib.cm as cm
 from custom_exceptions import PlotTypeNotSupported
 
 
-def create_graphs(predictions_path, graph_path, kind, timestamp='new',
+def create_graphs(predictions_path, graph_path, kind="scatter", timestamp='new',
                   showAverage=False):
     """
     plots a view of the predictions made by an index for a data set and saves
