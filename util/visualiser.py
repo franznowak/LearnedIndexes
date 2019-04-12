@@ -1,15 +1,21 @@
 import pandas as pd
+import config
+import time
 from matplotlib import pyplot as plt
 import matplotlib.cm as cm
 from custom_exceptions import PlotTypeNotSupported
 
 
-def show(predictions_path: str, kind: str, timestamp='new', showAverage=False):
+def create_graphs(predictions_path, graph_path, kind, timestamp='new',
+                  showAverage=False):
     """
-    plots a view of the predicition made by an index for a data set.
+    plots a view of the predictions made by an index for a data set and saves
+    it to file.
 
     :param predictions_path:
         path at which the prediction data is stored
+    :param graph_path:
+        path at which the graph data shall be stored
     :param kind:
         type of plot to be used: "scatter" or "hist2d"
     :param timestamp:
@@ -23,28 +29,28 @@ def show(predictions_path: str, kind: str, timestamp='new', showAverage=False):
     pred = pd.read_csv(
         predictions_path + timestamp + "_pred_times.csv", header=None)
     plot(pred, kind, title="Prediction time per key in microseconds",
-         ylabel="time in microseconds")
+         ylabel="time in microseconds", graph_path=graph_path)
 
     # search time
     search = pd.read_csv(
         predictions_path + timestamp + "_search_times.csv", header=None)
     plot(search, kind, title="Search time per key in microseconds",
-         ylabel='time in microseconds')
+         ylabel="time in microseconds", graph_path=graph_path)
 
     # search time
     search = pd.read_csv(
         predictions_path + timestamp + "_total_times.csv", header=None)
     plot(search, kind, title="Total index time in microseconds",
-         ylabel='time in microseconds')
+         ylabel='time in microseconds', graph_path=graph_path)
 
     # number of reads
     reads = pd.read_csv(
         predictions_path + timestamp + "_reads.csv", header=None)
     plot(reads, kind, title='Average reads required for search',
-         ylabel="number of reads")
+         ylabel="number of reads",graph_path=graph_path)
 
 
-def plot(data, kind: str, title: str, ylabel: str, binsize=50):
+def plot(data, kind, title, ylabel, graph_path, binsize=50):
     """
     Draws a plot of the data.
 
@@ -52,6 +58,7 @@ def plot(data, kind: str, title: str, ylabel: str, binsize=50):
     :param kind: "scatter" or "hist2d"
     :param title: title of the plot
     :param ylabel: label for the y axis (x is entropy level)
+    :param graph_path: path at which the graph data shall be stored
     :param binsize: size of the bins for heat maps
 
     """
@@ -64,4 +71,5 @@ def plot(data, kind: str, title: str, ylabel: str, binsize=50):
         plt.hist2d(data[0], data[1], bins=binsize, cmap=cm.jet)
     else:
         raise(PlotTypeNotSupported())
-    plt.show()
+    plt.savefig(graph_path + str(int(time.time())))
+    plt.close()

@@ -96,8 +96,8 @@ def measure_predictions_on_synthetic_integers(index_type):
     save_predictions(naive_efficiency, prediction_path, "reads")
 
     # plot all
-    visualiser.show(prediction_path, "scatter")
-    visualiser.show(prediction_path, "hist2d")
+    visualiser.create_graphs(prediction_path, "scatter")
+    visualiser.create_graphs(prediction_path, "hist2d")
 
 
 def get_prediction_times(index_type, data, dataset_file="", model_file=""):

@@ -61,7 +61,7 @@ class Model:
                                           min_delta=0, patience=0,
                                           verbose=0, mode='auto',
                                           baseline=None),
-            keras.callbacks.ModelCheckpoint(checkpoint_name,
+            keras.callbacks.ModelCheckpoint(weights_path + checkpoint_name,
                                             monitor='mean_absolute_error',
                                             verbose=0, save_best_only=True,
                                             save_weights_only=True,
@@ -138,6 +138,7 @@ class Model:
         if output_path != '' and not os.path.isdir(output_path):
             os.mkdir(output_path)
         plt.savefig(output_path + output_filename)
+        plt.close()
 
     def _prepare_data(self, dataset):
         """
