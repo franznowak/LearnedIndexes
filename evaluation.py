@@ -58,7 +58,7 @@ def measure_predictions_on_synthetic_integers(index_type):
             else:
                 model_file = config.MODEL_PATH + index_type + "/" + \
                             config.INTEGER_DATASET + \
-                            '/weights{}_{}'.format(run, inter)
+                            '/weights{}_{}.h5'.format(run, inter)
 
             inter_prediction_reads, prediction_time, search_time = \
                 get_prediction_times(index_type, data, dataset_file, model_file)
@@ -91,7 +91,7 @@ def measure_predictions_on_synthetic_integers(index_type):
     graph_path = config.GRAPH_PATH + index_type + "/" + \
         config.INTEGER_DATASET + "/"
     if not os.path.isdir(graph_path):
-        os.mkdir(graph_path)
+        os.makedirs(graph_path)
 
     # save time
     save_predictions(pred_times, prediction_path, "pred_times")
