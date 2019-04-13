@@ -7,6 +7,10 @@ import time
 
 from index.naive_learned_index import Model
 import pandas as pd
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 class RecursiveLearnedIndex:

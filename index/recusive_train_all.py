@@ -11,16 +11,17 @@ from index.naive_learned_index import Model
 
 EPOCHS = 2000
 N_RUNS = 1
-N_INTERPOLATIONS = 10
-DATA_PATH = "../data/datasets/" + config.INTEGER_DATASET
-GRAPH_PATH = "../data/graphs/recursive_learned_index/" + config.INTEGER_DATASET
+N_INTERPOLATIONS = 1
+DATA_PATH = "../data/datasets/" + config.INTEGER_DATASET +"/"
+GRAPH_PATH = "../data/graphs/recursive_learned_index/" + \
+             config.INTEGER_DATASET + "/"
 
 for run in range(N_RUNS):
     for inter in range(N_INTERPOLATIONS):
         print("Training run {} interpolation {}".format(run, inter))
         FILENAME = 'run{}inter{}'.format(run, inter)
         WEIGHTS_PATH = "../data/indexes/recursive_learned_index/" + \
-                       config.INTEGER_DATASET + FILENAME + "/"
+                       config.INTEGER_DATASET + "/" + FILENAME + "/"
         if os.path.isdir(WEIGHTS_PATH):
             continue
 

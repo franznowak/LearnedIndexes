@@ -11,8 +11,12 @@ import keras
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import logging
 from keras import layers
 from custom_exceptions import ModelNotTrainedException
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 class Model:
@@ -54,11 +58,11 @@ class Model:
         max_epochs = epochs
 
         if not os.path.isdir(weights_path):
-            os.mkdir(weights_path)
+            os.makedirs(weights_path)
 
         callbacks = [
             keras.callbacks.EarlyStopping(monitor='mean_absolute_error',
-                                          min_delta=0, patience=0,
+                                          min_delta=0, patience=10,
                                           verbose=0, mode='auto',
                                           baseline=None),
             keras.callbacks.ModelCheckpoint(weights_path + checkpoint_name,
@@ -72,6 +76,10 @@ class Model:
             self.data, self.labels,
             epochs=max_epochs, validation_split=1, verbose=0,
             callbacks=callbacks)
+
+        # Save stats for norming
+        stats_filename = weights_path + checkpoint_name + "_stats.csv"
+        self.stats.to_csv(stats_filename)
 
         self.trained = True
         self.history = history
@@ -89,6 +97,14 @@ class Model:
             raise FileNotFoundError("No model weights found at " +
                                     weights_filename)
         self.model.load_weights(weights_filename)
+
+        stats_filename = weights_filename + "_stats.csv"
+        if os.path.isfile(stats_filename):
+            self.stats = pd.read_csv(stats_filename, comment='\t',
+                                     sep=",", skipinitialspace=True)
+        else:
+            logger.debug("No stat file found for {}".format(stats_filename))
+
         self.trained = True
 
     def predict(self, key):
@@ -139,7 +155,7 @@ class Model:
             raise NameError("metric \"{}\" not recognised".format(metric))
 
         if output_path != '' and not os.path.isdir(output_path):
-            os.mkdir(output_path)
+            os.makedirs(output_path)
         plt.savefig(output_path + output_filename)
         plt.close()
 

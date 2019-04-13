@@ -9,13 +9,13 @@ from index.naive_learned_index import Model
 
 EPOCHS = 2000
 DATA_SET = config.REAL_WORLD_DATASET
-DATA_PATH = "../data/datasets/" + DATA_SET
-GRAPH_PATH = "../data/graphs/recursive_learned_index/" + DATA_SET
+DATA_PATH = "../data/datasets/" + DATA_SET + "/"
+GRAPH_PATH = "../data/graphs/recursive_learned_index/" + DATA_SET + "/"
 FILENAME = "creditcard.csv_training"
 
 print("Training on {}".format(FILENAME))
 
-WEIGHTS_PATH = "../data/indexes/recursive_learned_index/" + DATA_SET + \
+WEIGHTS_PATH = "../data/indexes/recursive_learned_index/" + DATA_SET + "/" + \
                FILENAME + "/"
 
 learned_index = RecursiveLearnedIndex(config.RECURSIVE_SHAPE,

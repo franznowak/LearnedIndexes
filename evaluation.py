@@ -85,7 +85,7 @@ def measure_predictions_on_synthetic_integers(index_type):
     prediction_path = config.PREDICTIONS_PATH + index_type + "/" + \
         config.INTEGER_DATASET + "/"
     if not os.path.isdir(prediction_path):
-        os.mkdir(prediction_path)
+        os.makedirs(prediction_path)
 
     # Set where graphs are stored
     graph_path = config.GRAPH_PATH + index_type + "/" + \
@@ -105,7 +105,19 @@ def measure_predictions_on_synthetic_integers(index_type):
 
 
 def get_prediction_times(index_type, data, dataset_file="", model_file=""):
+    """
+    Returns the prediction times for a single dataset evaluated using a
+    specified index_type.
 
+    :param index_type: string - type of index to use
+    :param data: NumKeyValData to count accesses
+    :param dataset_file: filename of file containing the data
+    :param model_file: filename or path of file(s) containing the model
+    weights for the learned index.
+
+    :return:  prediction_reads, prediction_time, search_time
+
+    """
     if index_type == "array_index":
         return evaluate_array_index(data)
     elif index_type == "binary_search":
@@ -121,6 +133,13 @@ def get_prediction_times(index_type, data, dataset_file="", model_file=""):
 
 
 def evaluate_array_index(data):
+    """
+    Evaluates the array index according to config settings.
+
+    :param data: NumKeyValData to count accesses
+    :return: prediction_reads, prediction_time, search_time
+
+    """
     step = int(config.N_KEYS / config.N_SAMPLES)
 
     predictions = {}
@@ -146,6 +165,13 @@ def evaluate_array_index(data):
 
 
 def evaluate_binary_search(data):
+    """
+    Evaluates the binary search according to config settings.
+
+    :param data: NumKeyValData to count accesses
+    :return: prediction_reads, prediction_time, search_time
+
+    """
     step = int(config.N_KEYS / config.N_SAMPLES)
     inter_prediction_reads = []
 
@@ -164,6 +190,13 @@ def evaluate_binary_search(data):
 
 
 def evaluate_btree_index(data):
+    """
+    Evaluates the btree index according to config settings.
+
+    :param data: NumKeyValData to count accesses
+    :return: prediction_reads, prediction_time, search_time
+
+    """
     btree = BTreeSet(64)
     for i in range(0, len(data.data_array), 2):
         btree.add(data.data_array[i])
@@ -185,6 +218,15 @@ def evaluate_btree_index(data):
 
 
 def evaluate_naive_learned_index(data, dataset_file, model_file):
+    """
+    Evaluates the naive learned index according to config settings.
+
+    :param data: NumKeyValData to count accesses
+    :param dataset_file: file where data is stored
+    :param model_file: file where weights are stored
+    :return: prediction_reads, prediction_time, search_time
+
+    """
     training_data = Model.load_training_data(dataset_file)
     naive_index = Model(config.NAIVE_COMPLEXITY, training_data, model_file)
     naive_index.load_weights(model_file)
@@ -214,6 +256,15 @@ def evaluate_naive_learned_index(data, dataset_file, model_file):
 
 
 def evaluate_recursive_learned_index(data, dataset_file, model_path):
+    """
+    Evaluates the recursive learned index according to config settings.
+
+    :param data: NumKeyValData to count accesses
+    :param dataset_file: file where data is stored
+    :param model_path: path where weight files and stat files are stored.
+    :return: prediction_reads, prediction_time, search_time
+
+    """
     training_data = Model.load_training_data(dataset_file)
     recursive_index = RecursiveLearnedIndex(config.RECURSIVE_SHAPE,
                                             config.RECURSIVE_COMPLEXITY)

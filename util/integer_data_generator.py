@@ -37,7 +37,7 @@ def generate_integer_data():
 
             file_name = "run" + str(run) + "inter" + str(interpolation)
             if not os.path.isdir(config.INTEGER_DATASET):
-                os.mkdir(config.INTEGER_DATASET)
+                os.makedirs(config.INTEGER_DATASET)
             interpolation_data.save(config.INTEGER_DATASET_PATH + file_name)
 
         all_data.append(run_data)
