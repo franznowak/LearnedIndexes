@@ -140,19 +140,21 @@ def evaluate_array_index(data):
     :return: prediction_reads, prediction_time, search_time
 
     """
-    step = int(config.N_KEYS / config.N_SAMPLES)
+    step = int(data.size / config.N_SAMPLES)
 
     predictions = {}
 
     tic_pred = time.time()
-    for key in range(0, config.N_KEYS, step):
+    for j in range(0, data.size, step):
+        key = data.data_array[j]
         predictions[key] = ArrayIndex.predict(data, key)
     toc_pred = time.time()
 
     inter_prediction_reads = []
 
     tic_search = time.time()
-    for key in range(0, config.N_KEYS, step):
+    for j in range(0, data.size, step):
+        key = data.data_array[j]
         reads = get_search_access_count(data, predictions[key], key)
         inter_prediction_reads.append(reads)
         data.reset_access_count()
@@ -172,19 +174,20 @@ def evaluate_binary_search(data):
     :return: prediction_reads, prediction_time, search_time
 
     """
-    step = int(config.N_KEYS / config.N_SAMPLES)
+    step = int(data.size / config.N_SAMPLES)
     inter_prediction_reads = []
 
     tic_search = time.time()
-    for key in range(0, config.N_KEYS, step):
+    for j in range(0, data.size, step):
+        key = data.data_array[j]
         searcher.binary_search(data, key)
         reads = data.get_access_count()
         inter_prediction_reads.append(reads)
         data.reset_access_count()
     toc_search = time.time()
 
-    prediction_time = 0
-    search_time = (toc_search - tic_search) / config.N_SAMPLES
+    prediction_time = (toc_search - tic_search) / config.N_SAMPLES
+    search_time = 0
 
     return inter_prediction_reads, prediction_time, search_time
 
@@ -198,15 +201,16 @@ def evaluate_btree_index(data):
 
     """
     btree = BTreeSet(64)
-    for i in range(0, len(data.data_array), 2):
+    for i in range(0, data.size, 2):
         btree.add(data.data_array[i])
 
-    step = int(config.N_KEYS / config.N_SAMPLES)
+    step = int(data.size / config.N_SAMPLES)
 
     inter_prediction_reads = []
 
     tic_search = time.time()
-    for key in range(0, config.N_KEYS, step):
+    for j in range(0, data.size, step):
+        key = data.data_array[j]
         reads = btree.count_reads_to(key)
         inter_prediction_reads.append(reads)
     toc_search = time.time()
@@ -231,19 +235,21 @@ def evaluate_naive_learned_index(data, dataset_file, model_file):
     naive_index = Model(config.NAIVE_COMPLEXITY, training_data, model_file)
     naive_index.load_weights(model_file)
 
-    step = int(config.N_KEYS / config.N_SAMPLES)
+    step = int(data.size / config.N_SAMPLES)
 
     predictions = {}
 
     tic_pred = time.time()
-    for key in range(0, config.N_KEYS, step):
+    for j in range(0, data.size, step):
+        key = data.data_array[j]
         predictions[key] = naive_index.predict(key)
     toc_pred = time.time()
 
     inter_prediction_reads = []
 
     tic_search = time.time()
-    for key in range(0, config.N_KEYS, step):
+    for j in range(0, data.size, step):
+        key = data.data_array[j]
         reads = get_search_access_count(data, predictions[key], key)
         inter_prediction_reads.append(reads)
         data.reset_access_count()
@@ -270,19 +276,21 @@ def evaluate_recursive_learned_index(data, dataset_file, model_path):
                                             config.RECURSIVE_COMPLEXITY)
     recursive_index.load_models(training_data, model_path)
 
-    step = int(config.N_KEYS / config.N_SAMPLES)
+    step = int(data.size / config.N_SAMPLES)
 
     predictions = {}
 
     tic_pred = time.time()
-    for key in range(0, config.N_KEYS, step):
+    for j in range(0, data.size, step):
+        key = data.data_array[j]
         predictions[key] = recursive_index.predict(key)
     toc_pred = time.time()
 
     inter_prediction_reads = []
 
     tic_search = time.time()
-    for key in range(0, config.N_KEYS, step):
+    for j in range(0, data.size, step):
+        key = data.data_array[j]
         reads = get_search_access_count(data, predictions[key], key)
         inter_prediction_reads.append(reads)
         data.reset_access_count()
