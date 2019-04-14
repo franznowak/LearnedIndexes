@@ -204,16 +204,24 @@ class BTreeSet(object):
                                 None) != size:
             raise AssertionError("Size mismatch")
 
-    # My added access time method (Franz Nowak, 29/11/2018)
+    # My added access time method (Franz Nowak, 2018-2019)
     def count_reads_to(self, obj):
-        count = 0
+        """
+        Returns a count of the data accesses performed to find the object
+
+        :param obj: the object to be found in the tree
+
+        :return: access_count: int
+
+        """
+        access_count = 0
         # Walk down the tree
         node = self.root
         while True:
             found, index = node.search(obj)
-            count += index
+            access_count += index
             if found:
-                return count
+                return access_count
             elif node.is_leaf():
                 return False
             else:  # Internal node
