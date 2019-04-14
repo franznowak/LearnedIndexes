@@ -21,10 +21,14 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-def measure_predictions_on_synthetic_integers(index_type):
+def measure_predictions_on_synthetic_integers(index_type, n_runs=config.N_RUNS):
     """
     Measures prediction times for runs and interpolations of synthetic Integer
     data and saves them to file.
+
+    :param index_type: type of index to be used
+    :param n_runs: number of runs of synthetic integer data to evaluate the
+    index on
 
     """
     logger.debug("Start array predictions...")
@@ -33,7 +37,7 @@ def measure_predictions_on_synthetic_integers(index_type):
     prediction_times = []
     search_times = []
 
-    for run in range(0, config.N_RUNS):
+    for run in range(0, n_runs):
 
         print("run #" + str(run))
 

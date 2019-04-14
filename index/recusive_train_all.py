@@ -10,8 +10,8 @@ from index.recursive_learned_index import RecursiveLearnedIndex
 from index.naive_learned_index import Model
 
 EPOCHS = 2000
-N_RUNS = 1
-N_INTERPOLATIONS = 1
+N_RUNS = 100
+N_INTERPOLATIONS = 10
 DATA_PATH = "../data/datasets/" + config.INTEGER_DATASET +"/"
 GRAPH_PATH = "../data/graphs/recursive_learned_index/" + \
              config.INTEGER_DATASET + "/"
@@ -28,4 +28,5 @@ for run in range(N_RUNS):
         learned_index = RecursiveLearnedIndex(config.RECURSIVE_SHAPE,
                                               config.RECURSIVE_COMPLEXITY)
         training_data = Model.load_training_data(DATA_PATH + FILENAME)
-        learned_index.train(training_data, WEIGHTS_PATH, GRAPH_PATH, EPOCHS)
+        learned_index.train(training_data, WEIGHTS_PATH, GRAPH_PATH +
+                            "run{}inter{}/".format(run, inter), EPOCHS)
