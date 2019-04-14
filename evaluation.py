@@ -83,7 +83,7 @@ def measure_predictions_on_synthetic_integers(index_type, n_runs=config.N_RUNS):
 
     total_times = np.add(pred_times, search_times)
 
-    naive_efficiency = np.average(n_reads, axis=2).transpose()
+    n_reads = np.average(n_reads, axis=2).transpose()
 
     # Set where predictions are stored
     prediction_path = config.PREDICTIONS_PATH + index_type + "/" + \
@@ -101,7 +101,7 @@ def measure_predictions_on_synthetic_integers(index_type, n_runs=config.N_RUNS):
     save_predictions(pred_times, prediction_path, "pred_times")
     save_predictions(search_times, prediction_path, "search_times")
     save_predictions(total_times, prediction_path, "total_times")
-    save_predictions(naive_efficiency, prediction_path, "reads")
+    save_predictions(n_reads, prediction_path, "reads")
 
     # plot all
     visualiser.create_graphs(prediction_path,  graph_path, "scatter")

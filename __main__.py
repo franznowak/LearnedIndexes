@@ -2,6 +2,8 @@
 # __main__.py - script for evaluation all indexes for time and file accesses.
 # December 2018 - May 2019 Franz Nowak
 # --------------------------------------------------------------------
+import os
+
 import config
 import evaluation
 from util.datatypes import NumKeyValData
@@ -15,8 +17,12 @@ for evaluation.
 index_types = ["array_index", "binary_search", "btree_index",
                "naive_learned_index", "recursive_learned_index"]
 
+RWD_DATASET_NAME = config.REAL_WORLD_DATASET + "/creditcard.csv_training"
+RWD_DATASET_FILE = config.DATASET_PATH + RWD_DATASET_NAME
+
 # Evaluation on synthetic integer data
 for index_type in index_types:
+    print("{} evaluation on synthetic Integer data".format(index_type))
     try:
         if index_type == "recursive_learned_index":
             evaluation.measure_predictions_on_synthetic_integers(index_type, 1)
@@ -27,28 +33,31 @@ for index_type in index_types:
         print("Exception occurred during evaluation of {}: {}".format(
             index_type, e.args))
 
-# # Evaluation on real world dataset
-# data = NumKeyValData()
-# dataset_name = config.REAL_WORLD_DATASET + \
-#                "/creditcard.csv_training"
-#
-# dataset_file = config.DATASET_PATH + dataset_name
-# data.load(dataset_file)
-# model_path = config.MODEL_PATH + "recursive_learned_index" + "/" + \
-#     dataset_name + "/"
-#
-#
-# # array index
-# # binary search
-# # btree index
-# # naive learned index
-# # recursive learned index
-# inter_prediction_reads, prediction_time, search_time = \
-#                 evaluation.evaluate_recursive_learned_index(data,
-#                                                             dataset_file,
-#                                                             model_path)
-#
-# # save(inter_prediction_reads)
-# # save(prediction_time)
-# # save(search_time)
-# # save(total_time)
+
+# Evaluation on real world dataset
+data = NumKeyValData()
+data.load(RWD_DATASET_FILE)
+
+for index_type in index_types:
+    try:
+        print("{} evaluation on real world data".format(index_type))
+        rwd_model_path = config.MODEL_PATH + index_type + "/" + RWD_DATASET_NAME + "/"
+        prediction_reads, prediction_time, search_time = \
+            evaluation.get_prediction_times(data, RWD_DATASET_FILE, rwd_model_path)
+        total_time = prediction_time + search_time
+
+        # Set where predictions are stored
+        prediction_path = config.PREDICTIONS_PATH + index_type + "/" + \
+            RWD_DATASET_NAME + "/"
+        if not os.path.isdir(prediction_path):
+            os.makedirs(prediction_path)
+
+        # Save predictions
+        evaluation.save_predictions(prediction_time, prediction_path, "pred_times")
+        evaluation.save_predictions(search_time, prediction_path, "search_times")
+        evaluation.save_predictions(total_time, prediction_path, "total_times")
+        evaluation.save_predictions(prediction_reads, prediction_path, "reads")
+
+    except Exception as e:
+        print("Exception occurred during evaluation of {}: {}".format(
+            index_type, e.args))
