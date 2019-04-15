@@ -83,7 +83,7 @@ def measure_predictions_on_synthetic_integers(index_type, n_runs=config.N_RUNS):
 
     total_times = np.add(pred_times, search_times)
 
-    n_reads = np.average(n_reads, axis=2).transpose()
+    n_reads = np.asarray(n_reads).transpose()
 
     # Set where predictions are stored
     prediction_path = config.PREDICTIONS_PATH + index_type + "/" + \
@@ -166,6 +166,7 @@ def evaluate_array_index(data):
 
     prediction_time = (toc_pred - tic_pred) / config.N_SAMPLES
     search_time = (toc_search - tic_search) / config.N_SAMPLES
+    inter_prediction_reads = np.average(inter_prediction_reads)
 
     return inter_prediction_reads, prediction_time, search_time
 
@@ -190,8 +191,9 @@ def evaluate_binary_search(data):
         data.reset_access_count()
     toc_search = time.time()
 
-    prediction_time = (toc_search - tic_search) / config.N_SAMPLES
-    search_time = 0
+    prediction_time = 0
+    search_time = (toc_search - tic_search) / config.N_SAMPLES
+    inter_prediction_reads = np.average(inter_prediction_reads)
 
     return inter_prediction_reads, prediction_time, search_time
 
@@ -219,8 +221,9 @@ def evaluate_btree_index(data):
         inter_prediction_reads.append(reads)
     toc_search = time.time()
 
-    prediction_time = 0
-    search_time = (toc_search - tic_search) / config.N_SAMPLES
+    prediction_time = (toc_search - tic_search) / config.N_SAMPLES
+    search_time = 0
+    inter_prediction_reads = np.average(inter_prediction_reads)
 
     return inter_prediction_reads, prediction_time, search_time
 
@@ -261,6 +264,7 @@ def evaluate_naive_learned_index(data, dataset_file, model_file):
 
     prediction_time = (toc_pred - tic_pred) / config.N_SAMPLES
     search_time = (toc_search - tic_search) / config.N_SAMPLES
+    inter_prediction_reads = np.average(inter_prediction_reads)
 
     return inter_prediction_reads, prediction_time, search_time
 
@@ -302,6 +306,7 @@ def evaluate_recursive_learned_index(data, dataset_file, model_path):
 
     prediction_time = (toc_pred - tic_pred) / config.N_SAMPLES
     search_time = (toc_search - tic_search) / config.N_SAMPLES
+    inter_prediction_reads = np.average(inter_prediction_reads)
 
     return inter_prediction_reads, prediction_time, search_time
 

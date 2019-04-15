@@ -28,7 +28,7 @@ for index_type in index_types:
             evaluation.measure_predictions_on_synthetic_integers(index_type, 1)
         else:
             evaluation.measure_predictions_on_synthetic_integers(index_type,
-                                                                 100)
+                                                                 1)
     except Exception as e:
         print("Exception occurred during evaluation of {}: {}".format(
             index_type, e.args))
