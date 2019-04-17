@@ -5,7 +5,6 @@
 
 import time
 import config
-import util.visualiser as visualiser
 import logging
 import util.integer_data_generator as datagen
 import numpy as np
@@ -16,6 +15,7 @@ from index.naive_learned_index import Model
 from index.recursive_learned_index import RecursiveLearnedIndex
 import util.search as searcher
 from custom_exceptions import NoEvaluationImplemented
+from util.datatypes import NumKeyValData
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -31,11 +31,15 @@ def measure_predictions_on_synthetic_integers(index_type, n_runs=config.N_RUNS):
     index on
 
     """
-    logger.debug("Start array predictions...")
+    logger.debug("Start predictions...")
 
     n_reads = []
     prediction_times = []
     search_times = []
+
+    if n_runs == 0:
+        # No runs so abort
+        return
 
     for run in range(0, n_runs):
 
@@ -91,21 +95,43 @@ def measure_predictions_on_synthetic_integers(index_type, n_runs=config.N_RUNS):
     if not os.path.isdir(prediction_path):
         os.makedirs(prediction_path)
 
-    # Set where graphs are stored
-    graph_path = config.GRAPH_PATH + index_type + "/" + \
-        config.INTEGER_DATASET + "/"
-    if not os.path.isdir(graph_path):
-        os.makedirs(graph_path)
-
     # save time
     save_predictions(pred_times, prediction_path, "pred_times")
     save_predictions(search_times, prediction_path, "search_times")
     save_predictions(total_times, prediction_path, "total_times")
     save_predictions(n_reads, prediction_path, "reads")
 
-    # plot all
-    visualiser.create_graphs(prediction_path,  graph_path, "scatter")
-    visualiser.create_graphs(prediction_path, graph_path, "hist2d")
+
+def measure_predictions_on_single_dataset(index_type, dataset, file):
+    dataset_path = config.DATASET_PATH + "/" + dataset + "/" + file
+    data = NumKeyValData()
+    data.load(dataset_path)
+
+    if index_type == "recursive_learned_index":
+        rwd_model_path = config.MODEL_PATH + index_type + "/" + dataset + "/"
+    else:
+        rwd_model_path = config.MODEL_PATH + index_type + "/" + \
+                         config.REAL_WORLD_DATASET + "/weights.h5"
+
+    prediction_reads, prediction_time, search_time = \
+        get_prediction_times(index_type, data, dataset_path, rwd_model_path)
+
+    prediction_time = prediction_time * 1000000  # microseconds
+    search_time = search_time * 1000000  # microseconds
+
+    total_time = prediction_time + search_time
+
+    # Set where predictions are stored
+    prediction_path = config.PREDICTIONS_PATH + index_type + "/" + \
+        dataset + "/"
+    if not os.path.isdir(prediction_path):
+        os.makedirs(prediction_path)
+
+    # Save predictions
+    save_predictions([[prediction_time]], prediction_path, "pred_times")
+    save_predictions([[search_time]], prediction_path, "search_times")
+    save_predictions([[total_time]], prediction_path, "total_times")
+    save_predictions([[prediction_reads]], prediction_path, "reads")
 
 
 def get_prediction_times(index_type, data, dataset_file="", model_file=""):
@@ -206,8 +232,8 @@ def evaluate_btree_index(data):
     :return: prediction_reads, prediction_time, search_time
 
     """
-    btree = BTreeSet(64)
-    for i in range(0, data.size, 2):
+    btree = BTreeSet(4)
+    for i in range(data.size):
         btree.add(data.data_array[i])
 
     step = int(data.size / config.N_SAMPLES)

@@ -21,7 +21,7 @@ RECURSIVE_COMPLEXITY = [[32, 32], [32, 32]]
 STEP_SIZE = 0.001
 
 # SEARCH:enum - Determine which search to use (Linear finds absolute error)
-SEARCH = SearchType.LINEAR
+SEARCH = SearchType.EXPONENTIAL
 
 # INTEGER_DATASET:str - The synthetic dataset of integers
 INTEGER_DATASET = "Integers_100x10x100k"

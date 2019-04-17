@@ -102,16 +102,16 @@ def exponential_search(data, start_index, target_value):
     """
     index = max(0, min(data.size-1, start_index))
     value = data.read(index)
-    jump = 2
+    jump = 1
     if value < target_value:
         while value < target_value:
             jump *= 2
             value = data.read(min(index + jump, data.size-1))
-        return binary_search(data, target_value, index+jump/2, index+jump)
+        return binary_search(data, target_value, index+int(jump/2), index+jump)
     elif value > target_value:
         while value > target_value:
             jump *= 2
             value = data.read(max(index - jump, 0))
-        return binary_search(data, target_value, index-jump, index-jump/2)
+        return binary_search(data, target_value, index-jump, index-int(jump/2))
     else:
         return index

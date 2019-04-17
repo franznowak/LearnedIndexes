@@ -1,13 +1,13 @@
 import pandas as pd
 import config
 import time
+import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.cm as cm
 from custom_exceptions import PlotTypeNotSupported
 
 
-def create_graphs(predictions_path, graph_path, kind="scatter", timestamp='new',
-                  showAverage=False):
+def create_graphs(predictions_path, graph_path, kind="scatter", timestamp='new'):
     """
     plots a view of the predictions made by an index for a data set and saves
     it to file.
@@ -17,11 +17,10 @@ def create_graphs(predictions_path, graph_path, kind="scatter", timestamp='new',
     :param graph_path:
         path at which the graph data shall be stored
     :param kind:
-        type of plot to be used: "scatter" or "hist2d"
+        type of plot to be used: "line", "scatter" or "hist2d"
+        (line collapses points to their average)
     :param timestamp:
         timestamp of the predictions, default: 'new' for latest
-    :param showAverage:
-        specifies if there should be a line that shows the average of the runs
 
     """
 
@@ -57,12 +56,12 @@ def create_graphs(predictions_path, graph_path, kind="scatter", timestamp='new',
          ylabel="number of reads", graph_path=graph_path, filename=filename)
 
 
-def plot(data, kind, title, ylabel, graph_path, filename, binsize=50):
+def plot(data, kind, title, ylabel, graph_path, filename, binsize=[50,10]):
     """
     Draws a plot of the data.
 
     :param data: the data to be plotted (indexed data points)
-    :param kind: "scatter" or "hist2d"
+    :param kind: "scatter" or "hist2d" or "line" (line averages)
     :param title: title of the plot
     :param ylabel: label for the y axis (x is entropy level)
     :param graph_path: path at which the graph data shall be stored
@@ -76,8 +75,33 @@ def plot(data, kind, title, ylabel, graph_path, filename, binsize=50):
     if kind == "scatter":
         plt.scatter(data[0], data[1])
     elif kind == "hist2d":
-        plt.hist2d(data[0], data[1], bins=binsize, cmap=cm.jet)
+        plt.hist2d(data[0], data[1], bins=binsize, cmap=cm.Reds, cmin=1)
+    elif kind == "line":
+        xs, ys = average(data)
+        plt.plot(xs, ys)
     else:
         raise(PlotTypeNotSupported())
     plt.savefig(graph_path + filename)
     plt.close()
+
+
+def average(data):
+    """
+    Collapses pandas.DataFrame on first column and averages second column.
+
+    :param data: pandas.DataFrame with two columns
+
+    :return: pair of lists, first column, second column
+
+    """
+    values = {}
+    for i in data.index:
+        x = data.at[i, 0]
+        y = data.at[i, 1]
+        if x in values.keys():
+            values[x].append(y)
+        else:
+            values[x] = [y]
+    for x in values.keys():
+        values[x] = np.average(values[x])
+    return values.keys(), values.values()
