@@ -233,7 +233,7 @@ class Model:
                 # Input layer takes a single key
                 model_layers.append(layers.Dense(complexity[0],
                                     activation=tf.nn.relu,
-                                    input_shape=[1]))
+                                    input_shape=(1,)))
             else:
                 # Hidden layers
                 model_layers.append(layers.Dense(complexity[i],
@@ -261,7 +261,7 @@ class Model:
 
         """
         model = keras.Sequential([
-            layers.Dense(32, activation=tf.nn.relu, input_shape=[1]),
+            layers.Dense(32, activation=tf.nn.relu, input_shape=(1,)),
             layers.Dense(32, activation=tf.nn.relu),
             layers.Dense(1)
         ])

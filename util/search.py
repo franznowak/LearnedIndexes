@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------
-# search - various search functions for finding an index by key in data.
+# search.py - various search functions for finding an index by key in data.
 # December 2018 - May 2019 Franz Nowak
 # --------------------------------------------------------------------
 
