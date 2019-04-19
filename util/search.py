@@ -12,6 +12,7 @@ class SearchType(Enum):
     """ Enum for all currently supported search types"""
     LINEAR = auto()
     BINARY = auto()
+    QUATERNARY = auto()
     EXPONENTIAL = auto()
 
 
@@ -32,6 +33,8 @@ def search(data, start_index, target_value, search_type: SearchType = None):
         linear_search(data, start_index, target_value)
     elif search_type == SearchType.BINARY:
         binary_search(data, target_value)
+    elif search_type == SearchType.QUATERNARY:
+        quaternary_search(data, target_value)
     elif search_type == SearchType.EXPONENTIAL:
         exponential_search(data, start_index, target_value)
     else:
@@ -87,6 +90,51 @@ def binary_search(data, target_value, left=0, right=None):
             right = index - 1
         else:
             return index
+
+
+def quaternary_search(data, target_value, left=0, right=None):
+    """
+    Searches the whole dataset using quatenary search.
+
+    :param data: the data to be searched
+    :param target_value: the key that we are searching for
+    :param left: leftmost index in data
+    :param right: rightmost index in data
+
+    :return: index
+
+    """
+    if right is None:
+        right = data.size - 1
+    left = max(0, left)
+    right = min(right, data.size - 1)
+    while True:
+        if right < 1:
+            raise Exception("value not found!")
+        q1 = int(left + (right-left)/4)
+        q2 = int(left + (right-left)/2)
+        q3 = int(left + 3*(right-left)/4)
+
+        v1 = data.read(q1)
+        v2 = data.read(q2)
+        v3 = data.read(q3)
+
+        if target_value == v1:
+            return q1
+        elif target_value == v2:
+            return q2
+        elif target_value == v3:
+            return q3
+        elif target_value < v1:
+            right = q1 - 1
+        elif target_value < v2:
+            left = q1 + 1
+            right = q2 - 1
+        elif target_value < v3:
+            left = q2 + 1
+            right = q3 - 1
+        else:
+            left = q3 + 1
 
 
 def exponential_search(data, start_index, target_value):
