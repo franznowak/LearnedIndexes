@@ -6,7 +6,7 @@
 import time
 import config
 import logging
-import util.integer_data_generator as datagen
+import util.data_generator as datagen
 import numpy as np
 import os
 from index.array_index import ArrayIndex

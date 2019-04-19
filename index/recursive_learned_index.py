@@ -76,7 +76,7 @@ class RecursiveLearnedIndex:
                               tmp_records[i][j])
                 model.train(weights_path, "weights{}_{}.h5"
                             .format(i, j), epochs)
-                model.plot_history(graph_path,'{}_history_{}_{}.png'
+                model.plot_history(graph_path, '{}_history_{}_{}.png'
                                    .format(int(time.time()), i, j))
                 trained_index[i].append(model)
                 if i < n_stages-1:
