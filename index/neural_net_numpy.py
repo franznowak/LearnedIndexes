@@ -28,7 +28,7 @@ def main():
     
     
 def load_data():
-    train_x = np.random.randint(100, size=(1, 100))
+    train_x = np.add(np.random.randint(100, size=(1, 100)),1)
     train_x.sort()
     train_y = np.asarray([i for i in range(1, train_x.size+1)])
     train_y = train_y.reshape((1, train_x.size))
@@ -91,7 +91,7 @@ def l_layer_model(x, y, layers_dims, learning_rate=0.0075, num_iterations=3000,
 
 def predict(x, parameters):
     """
-    Using the learned parameters, predicts a class for each example in x
+    Using the learned parameters, predicts the index for each key in x
     
     :param x: input data of size (n_x, m)
     :param parameters: python dict containing the parameters
@@ -322,8 +322,14 @@ def compute_cost(al, y):
     prediction = al * m
 
     # Compute loss from aL and y.
-    cost = -(1/m) * \
-        np.sum(y*np.log(prediction) + (1-y) * np.log(1-prediction), axis=1)
+
+    a = y*np.log(prediction)
+    b = (1-y) * np.log(1-prediction)
+    c = np.nansum(a+b, axis=1)
+    d = -(1/m)
+    cost = d*c
+    # cost = -(1/m) * \
+    #     np.sum(y*np.log(prediction) + (1-y) * np.log(1-prediction), axis=1)
     
     # cost = -(1 / m) * np.sum(np.square(y-al), axis=1)
 

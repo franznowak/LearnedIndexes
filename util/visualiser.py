@@ -77,8 +77,8 @@ def plot(data, kind, title, ylabel, graph_path, filename, binsize=[50,10]):
     elif kind == "hist2d":
         plt.hist2d(data[0], data[1], bins=binsize, cmap=cm.Reds, cmin=1)
     elif kind == "line":
-        xs, ys = average(data)
-        plt.plot(xs, ys)
+        xs, ys, errs = average(data)
+        plt.errorbar(xs, ys, yerr=errs)
     else:
         raise(PlotTypeNotSupported())
     plt.savefig(graph_path + filename)
@@ -95,6 +95,7 @@ def average(data):
 
     """
     values = {}
+    std = {}
     for i in data.index:
         x = data.at[i, 0]
         y = data.at[i, 1]
@@ -103,5 +104,14 @@ def average(data):
         else:
             values[x] = [y]
     for x in values.keys():
+        std[x] = np.std(values[x])
         values[x] = np.average(values[x])
-    return values.keys(), values.values()
+    return values.keys(), values.values(), std
+
+
+if __name__ == "__main__":
+    predictions_path = "/Users/franz/PycharmProjects/LearnedIndexes/data/pred" \
+                       "ictions/binary_search/Integers_100x10x100k/"
+    graph_path = "/Users/franz/PycharmProjects/LearnedIndexes/data/graphs" \
+                 "/binary_search/Integers_100x10x100k/"
+    create_graphs(predictions_path, graph_path, kind="line", timestamp='linear')

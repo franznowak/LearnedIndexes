@@ -170,21 +170,21 @@ def evaluate_array_index(data):
     :return: prediction_reads, prediction_time, search_time
 
     """
-    step = int(data.size / config.N_SAMPLES)
+    step = int(config.N_KEYS / config.N_SAMPLES)
 
     predictions = {}
 
     tic_pred = time.time()
-    for j in range(0, data.size, step):
-        key = data.data_array[j]
+    for j in range(0, config.N_KEYS, step):
+        key = j
         predictions[key] = ArrayIndex.predict(data, key)
     toc_pred = time.time()
 
     inter_prediction_reads = []
 
     tic_search = time.time()
-    for j in range(0, data.size, step):
-        key = data.data_array[j]
+    for j in range(0, config.N_KEYS, step):
+        key = j
         reads = get_search_access_count(data, predictions[key], key)
         inter_prediction_reads.append(reads)
         data.reset_access_count()
@@ -368,6 +368,7 @@ def write_predictions_to_file(data, path, filename):
         for i in range(len(data)):
             for j in range(len(data[i])):
                 file.write("{},{}\n".format(i, data[i][j]))
+        # file.write("{}".format(data))
 
 
 def get_search_access_count(input_data, prediction, key):

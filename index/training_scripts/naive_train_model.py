@@ -18,7 +18,7 @@ from tensorflow.keras import layers
 EPOCHS = 100
 
 if len(sys.argv) != 2:
-    raise Exception("This program requires 2 input arguments")
+    raise Exception("This program requires an input argument (filename)")
 
 filename = sys.argv[1]
 
@@ -37,8 +37,8 @@ train_dataset = (train_dataset - train_stats['mean']) / train_stats['std']
 size = len(train_dataset.keys())
 
 model = keras.Sequential([
-    layers.Dense(32, activation=tf.nn.relu, input_shape=[size]),
-    layers.Dense(32, activation=tf.nn.relu),
+    layers.Dense(4, activation=tf.nn.relu, input_shape=[size]),
+    layers.Dense(4, activation=tf.nn.relu),
     layers.Dense(1)
 ])
 

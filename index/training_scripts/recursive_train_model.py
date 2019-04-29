@@ -8,10 +8,10 @@ from index.recursive_learned_index import RecursiveLearnedIndex
 from index.naive_learned_index import Model
 
 EPOCHS = 2000
-DATA_SET = config.REAL_WORLD_DATASET
+DATA_SET = "Lognormal" # config.REAL_WORLD_DATASET
 DATA_PATH = "../data/datasets/" + DATA_SET + "/"
 GRAPH_PATH = "../data/graphs/recursive_learned_index/" + DATA_SET + "/"
-FILENAME = "creditcard.csv_training"
+FILENAME = "lognormal.sorted.190M_training" #"creditcard.csv_training"
 
 print("Training on {}".format(FILENAME))
 

@@ -109,7 +109,7 @@ def quaternary_search(data, target_value, left=0, right=None):
     left = max(0, left)
     right = min(right, data.size - 1)
     while True:
-        if right < 1:
+        if right < 0:
             raise Exception("value not found!")
         q1 = int(left + (right-left)/4)
         q2 = int(left + (right-left)/2)

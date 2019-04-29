@@ -34,9 +34,9 @@ def calculate_entropy(filename):
         else:
             jumps[val] = jumps[val] + 1.0
 
-    # jumps_counts = sorted(jumps.items(), key=lambda kv: (kv[1], kv[0]))
-    # # print(jumps_counts)
-    # (most_common, count) = jumps_counts[len(jumps_counts)-1]
+    jumps_counts = sorted(jumps.items(), key=lambda kv: (kv[1], kv[0]))
+    # print(jumps_counts)
+    (most_common, count) = jumps_counts[len(jumps_counts)-1]
     # p = count/total_keys
     # # print("most common was {} with a ratio of {} ({}/{})".format(most_common,
     # #                                                       p, count, total_keys))
@@ -46,13 +46,13 @@ def calculate_entropy(filename):
     # else:
     #     return - p * math.log2(p) - (1-p) * math.log2(1-p)
 
-    # H = 0
-    # for key, val in jumps.items():
-    #     p = val/total_keys
-    #     H -= p * math.log2(p)
-    # return H
-    print(jumps)
-    return 1-jumps[1]/total_keys
+    H = 0
+    for key, val in jumps.items():
+        p = val/total_keys
+        H -= p * math.log2(p)
+    return H
+    # print(jumps)
+    # return 1-jumps[1]/total_keys
 
 
 if __name__ == "__main__":
