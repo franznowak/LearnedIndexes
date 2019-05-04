@@ -3,7 +3,7 @@
 library(ggplot2)
 to.read = file("/Users/franz/PycharmProjects/LearnedIndexes/data/datasets/Lognormal/lognormal.sorted.190M", "rb")
 data=readBin(to.read, integer(), n = 190000000, size = 4, endian = "little")
-colnames(rdata) = "values"
+colnames(data) = "values"
 
 ys=data[1000000:1000100]
 df <- data.frame(matrix(unlist(ys), nrow=length(ys), byrow=T))

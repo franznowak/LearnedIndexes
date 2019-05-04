@@ -1,39 +1,78 @@
 import Pkg;
-Pkg.add("HDF5")
-using HDF5
-using CSV
-using DelimitedFiles
-
-function load_model(filename)
-    model_data = readdlm(filename)
-    n_layers = trunc(Int,model_data[1])
-    m = model_data[2]
-    s = model_data[3]
-    return n_layers, m, s
-end
+Pkg.add("HDF5");
+using HDF5;
+using CSV;
+using DelimitedFiles;
 
 function load_weights(filename, layer_offset, n_layers)
-    layers =  Dict(i => h5read(filename,"dense_$(i+layer_offset)")["dense_$(i+layer_offset)"] for i = 1:n_layers)
+"""
+    Loads weights from HDF5 file that were trained previously with keras.
+
+    :param filename: name of the HDF5 file containing the keras weights
+    :param layer_offset: number of layers trained in previous iterations
+        that need to be added to the layer identifier
+    :param n_layers: number of layers in the model
+
+    :return: dict of layer weights for all layers.
+
+"""
+    layers =  Dict(i => h5read(filename,"dense_$(i+layer_offset)")["dense_$(i+layer_offset)"]
+        for i = 1:n_layers)
     return layers
 end
 
 function load_data(filename)
-    data = readdlm(filename,',', Int64)
+"""
+    Loads key, index pairs from csv file.
+
+    :param filename: name of the csv file.
+
+    :return: 2-d array of key, index pairs
+
+"""
+    return readdlm(filename,',', Int64)
 end
 
 function relu(x)
+"""
+Computes RELU function of a number or array.
+
+"""
     return x .* (x .> 0)
 end
 
 function predict(key, layers, n_layers, m, s)
+"""
+    Computes a forward pass through the Neural Network.
+
+    :param key: input to the model, key whose index to predict
+    :param layers: dict of layer weights for all model layers
+    :param n_layers: number of layers in the model
+    :raises KeyError: if key not in the data set
+
+    :return: output of the model, predicted index of the key
+
+"""
     out = (key - m)/s
     for i = 1:n_layers-1
         out = relu(layers[i]["kernel:0"]*out + layers[i]["bias:0"])
     end
-    return trunc(Int,(layers[n_layers]["kernel:0"]*out + layers[n_layers]["bias:0"])[1])
+    return trunc(Int,(layers[n_layers]["kernel:0"]*out
+        + layers[n_layers]["bias:0"])[1])
 end
 
 function exponential_search(data, key, prediction)
+"""
+    Conducts an exponential search for a key around the predicted position.
+
+    :param data: 2d-array of key, index pairs
+    :param key: key whose index is to be found
+    :param prediction: predicted index of the key
+    :raises KeyError: if key not in the data set
+
+    :return: true index of the key
+
+"""
     data_size = size(data)[1]
     index = max(1, min(data_size, prediction))
     value = data[index]
@@ -56,6 +95,18 @@ function exponential_search(data, key, prediction)
 end
 
 function binary_search(data, key, left, right)
+"""
+    Conducts a binary search for a key in the specified range.
+
+    :param data: 2d-array of key, index pairs
+    :param key: key whose index is to be found
+    :param left: left boundary of binary search
+    :param right: right boundary of binary search
+    :raises KeyError: if key not in the data set
+
+    :return: true index of the key
+
+"""
     left = max(1, left)
     right = min(right, size(data)[1])
     while true
@@ -75,6 +126,15 @@ function binary_search(data, key, left, right)
 end
 
 struct Model
+"""
+    A struct collecting state of a Neural Network Model "Object".
+
+    :var layers: dict of the weights of all model layers
+    :var n_layers: number of layers in the model
+    :var m: mean of the key inputs for normalisation
+    :var s: standard deviation of the key inputs for normalisation
+
+"""
     layers
     n_layers::Int
     m::Float64
@@ -82,6 +142,14 @@ struct Model
 end
 
 function load_stats(filename)
+"""
+    Loads previously stored data about the key distribution.
+
+    :param filename: name of the statistics csv file
+
+    :returns: (mean, standard deviation) of keys
+
+"""
     model_data = CSV.read(filename, header=false, delim=',')
     m = parse(Float64,model_data[2,3])
     s = parse(Float64,model_data[2,4])
@@ -89,12 +157,25 @@ function load_stats(filename)
 end
 
 function load_index(weights_path, layer_offset)
+"""
+    Loads all models from a previously trained Recursive Model Index.
+
+    :param weights_path: path of the weights files
+    :param layer_offset: number of layers trained in previous iterations
+        that need to be added to the layer identifier
+
+    :return: array of Model Structs - a full Recursive Model Index.
+
+"""
     index = []
     for i=1:n_stages
         push!(index,[])
         for j=1:stages[i]
-            layers = load_weights("$(weights_path)weights$(i-1)_$(j-1).h5", layer_offset, nn_layers[i])
-            m, s  = load_stats("$(weights_path)weights$(i-1)_$(j-1).h5_stats.csv")
+            layers =
+                load_weights("$(weights_path)weights$(i-1)_$(j-1).h5",
+                              layer_offset, nn_layers[i])
+            m, s  =
+                load_stats("$(weights_path)weights$(i-1)_$(j-1).h5_stats.csv")
             model = Model(layers, nn_layers[i], m, s)
             push!(index[i],model)
             layer_offset+=nn_layers[i]
@@ -104,15 +185,37 @@ function load_index(weights_path, layer_offset)
 end
 
 function get_next_model_index(current_stage, current_prediction)
-    p = trunc(Int, current_prediction * stages[current_stage + 1] / data_size + 1)
+"""
+    Returns the index of the model in the next stage of the Recursive Model
+        Index to be used for prediction.
+
+    :param current_stage: the current stage of the Recursive Model Index
+        at which a prediction was made
+    :param current_prediction: the prediction of the model in the current stage
+
+    :return: index of the model in the next stage to be used
+
+"""
+    p = trunc(Int, current_prediction * stages[current_stage + 1]
+        / data_size + 1)
     return min(stages[current_stage + 1], max(1, p))
 end
 
 function recursive_predict(key)
+"""
+    Predicts the position of a record using the previously loaded Recursive
+    Model Index structure.
+
+    :param key: key whose index to predict
+    :raises KeyError: if key not in the data set
+
+    :return: true index of the key
+"""
     j = 1
     for i=1:n_stages-1
         model = index[i][j]
-        j = get_next_model_index(i, predict(key, model.layers, model.n_layers, model.m, model.s))
+        j = get_next_model_index(i, predict(key, model.layers, model.n_layers,
+                                            model.m, model.s))
         println("selecting model $(j)")
     end
     model = index[n_stages][j]
