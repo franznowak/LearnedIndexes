@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------
-# naive_learned_index - Model class implementing a naive learned index
+# naive_learned_index.py - Model class implementing a naive learned index
 # December 2018 - May 2019 Franz Nowak
 # --------------------------------------------------------------------
 

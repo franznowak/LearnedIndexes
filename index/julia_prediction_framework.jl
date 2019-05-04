@@ -1,3 +1,8 @@
+# --------------------------------------------------------------------
+# julia_prediction_framework - A fast prediction framework that utilizes trained keras weights
+# December 2018 - May 2019 Franz Nowak
+# --------------------------------------------------------------------
+
 import Pkg;
 Pkg.add("HDF5");
 using HDF5;
