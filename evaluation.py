@@ -176,7 +176,7 @@ def evaluate_array_index(data):
 
     tic_pred = time.time()
     for j in range(0, config.N_KEYS, step):
-        key = j
+        key = data.data_array[j]
         predictions[key] = ArrayIndex.predict(data, key)
     toc_pred = time.time()
 
@@ -184,7 +184,7 @@ def evaluate_array_index(data):
 
     tic_search = time.time()
     for j in range(0, config.N_KEYS, step):
-        key = j
+        key = data.data_array[j]
         reads = get_search_access_count(data, predictions[key], key)
         inter_prediction_reads.append(reads)
         data.reset_access_count()
@@ -192,7 +192,7 @@ def evaluate_array_index(data):
 
     prediction_time = (toc_pred - tic_pred) / config.N_SAMPLES
     search_time = (toc_search - tic_search) / config.N_SAMPLES
-    inter_prediction_reads = np.average(inter_prediction_reads)
+    inter_prediction_reads = np.median(inter_prediction_reads)
 
     return inter_prediction_reads, prediction_time, search_time
 
@@ -219,7 +219,7 @@ def evaluate_binary_search(data):
 
     prediction_time = 0
     search_time = (toc_search - tic_search) / config.N_SAMPLES
-    inter_prediction_reads = np.average(inter_prediction_reads)
+    inter_prediction_reads = np.median(inter_prediction_reads)
 
     return inter_prediction_reads, prediction_time, search_time
 
@@ -249,7 +249,7 @@ def evaluate_btree_index(data):
 
     prediction_time = (toc_search - tic_search) / config.N_SAMPLES
     search_time = 0
-    inter_prediction_reads = np.average(inter_prediction_reads)
+    inter_prediction_reads = np.median(inter_prediction_reads)
 
     return inter_prediction_reads, prediction_time, search_time
 
@@ -290,7 +290,7 @@ def evaluate_naive_learned_index(data, dataset_file, model_file):
 
     prediction_time = (toc_pred - tic_pred) / config.N_SAMPLES
     search_time = (toc_search - tic_search) / config.N_SAMPLES
-    inter_prediction_reads = np.average(inter_prediction_reads)
+    inter_prediction_reads = np.median(inter_prediction_reads)
 
     return inter_prediction_reads, prediction_time, search_time
 
@@ -332,7 +332,7 @@ def evaluate_recursive_learned_index(data, dataset_file, model_path):
 
     prediction_time = (toc_pred - tic_pred) / config.N_SAMPLES
     search_time = (toc_search - tic_search) / config.N_SAMPLES
-    inter_prediction_reads = np.average(inter_prediction_reads)
+    inter_prediction_reads = np.median(inter_prediction_reads)
 
     return inter_prediction_reads, prediction_time, search_time
 
@@ -348,14 +348,13 @@ def save_predictions(data, path, filename):
 
     """
     # filename with timestamp
-    fn = "{}_{}.csv".format(int(time.time()), filename)
-    write_predictions_to_file(data,  path, fn)
+    _write_predictions_to_file(data, path, "{}_{}.csv".format(int(time.time()),
+                                                              filename))
     # filename for latest available data
-    fn2 = "new_{}.csv".format(filename)
-    write_predictions_to_file(data, path, fn2)
+    _write_predictions_to_file(data, path, "new_{}.csv".format(filename))
 
 
-def write_predictions_to_file(data, path, filename):
+def _write_predictions_to_file(data, path, filename):
     """
     Helper function that writes the data to file.
 
@@ -368,7 +367,24 @@ def write_predictions_to_file(data, path, filename):
         for i in range(len(data)):
             for j in range(len(data[i])):
                 file.write("{},{}\n".format(i, data[i][j]))
-        # file.write("{}".format(data))
+
+
+def save_single_prediction(data, path, filename):
+    """
+        Saves two copies of the prediction data to file, one with timestamp,
+        one as the newest available data.
+
+        :param data: data to be saved.
+        :param path: path to directory in which to store the data
+        :param filename: identifier for file, signifying kind of data being stored
+
+    """
+    fn1 = "{}_{}.csv".format(int(time.time()), filename)
+    with open(path + fn1, mode='w') as file:
+        file.write("{}".format(data))
+    fn2 = "new_{}.csv".format(filename)
+    with open(path + fn2, mode='w') as file:
+        file.write("{}".format(data))
 
 
 def get_search_access_count(input_data, prediction, key):
