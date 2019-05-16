@@ -200,6 +200,7 @@ def _get_bucket_transition_probabilities(key_counts):
 
     return transition_probabilities
 
+
 def _get_step_list(filename):
     """
     Gets a sequential list of keys from a data set.
