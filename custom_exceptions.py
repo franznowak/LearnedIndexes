@@ -6,6 +6,12 @@
 """Custom exceptions"""
 
 
+class KeyNotFoundError(Exception):
+    """Searching for a non-existent key in a dataset."""
+    def __init__(self, message):
+        super.__init__(message)
+
+
 class ModelNotTrainedException(Exception):
     """Exception for when there is an attempt to use a model before training
     it"""

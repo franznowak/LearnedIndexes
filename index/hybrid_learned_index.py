@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-class RecursiveLearnedIndex:
+class HybridLearnedIndex:
     """
     A regression tree of neural networks that takes a one dimensional input
     and returns a prediction of the position in the dataset by iteratively

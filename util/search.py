@@ -7,6 +7,8 @@ from enum import Enum, auto
 import config
 import numpy as np
 
+from custom_exceptions import KeyNotFoundError
+
 
 class SearchType(Enum):
     """ Enum for all currently supported search types"""
@@ -38,7 +40,7 @@ def search(data, start_index, target_value, search_type: SearchType = None):
     elif search_type == SearchType.EXPONENTIAL:
         exponential_search(data, start_index, target_value)
     else:
-        raise Exception("Unknown search type")
+        raise KeyNotFoundError("Unknown search type")
 
 
 def linear_search(data, start_index, target_value):
@@ -59,7 +61,7 @@ def linear_search(data, start_index, target_value):
         index -= 1
         value = data.read(index)
     if value != target_value:
-        raise Exception("value " + str(target_value) + " not found!")
+        raise KeyNotFoundError("value " + str(target_value) + " not found!")
     return index
 
 
@@ -81,7 +83,7 @@ def binary_search(data, target_value, left=0, right=None):
     right = min(right, data.size - 1)
     while True:
         if right < left:
-            raise Exception("value not found!")
+            raise KeyNotFoundError("value not found!")
         index = int(np.floor((right + left) / 2))
         value = data.read(index)
         if value < target_value:
@@ -110,7 +112,7 @@ def quaternary_search(data, target_value, left=0, right=None):
     right = min(right, data.size - 1)
     while True:
         if right < 0:
-            raise Exception("value not found!")
+            raise KeyNotFoundError("value not found!")
         q1 = int(left + (right-left)/4)
         q2 = int(left + (right-left)/2)
         q3 = int(left + 3*(right-left)/4)
